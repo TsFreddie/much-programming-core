@@ -2,9 +2,9 @@
 //  Templates
 // -----------------------
 function Key(keyCode, fnktm, defaults = [], type = '1x1') {
-    var default_fn = !defaults[0] ? '3' : defaults[0]
-    var default_fn1 = !defaults[1] ? '3' : defaults[1]
-    var default_pn = !defaults[2] ? '3' : defaults[2]
+    var default_fn = !defaults[0] ? '0' : defaults[0]
+    var default_fn1 = !defaults[1] ? '0' : defaults[1]
+    var default_pn = !defaults[2] ? '0' : defaults[2]
     var override_bind = !defaults[3] ? keyCode : defaults[3]
     return {
         code: keyCode,
@@ -84,10 +84,10 @@ const ktmName = [
 ];
 
 const keyName = {
-    '0': 'NO',
+    '0': 'NOTHING',
     '1': 'ERR_RO',
     '2': 'POST_FAIL',
-    '3': 'NOTHING',
+    '3': 'UNDEFINED',
     '4': 'A',
     '5': 'B',
     '6': 'C',
@@ -307,10 +307,10 @@ const keyName = {
 };
 
 const keyLegend = {
-    '0': 'NO',
+    '0': '',
     '1': 'ERR_RO',
     '2': 'POST_FAIL',
-    '3': '',
+    '3': 'UNDEFINED',
     '4': 'A',
     '5': 'B',
     '6': 'C',
@@ -583,7 +583,7 @@ const fullKeyboard = [
         FK('PN'),
         FK('FN'),
         FK('FN1'),
-        FK('3'),
+        FK('0'),
     ],
     [
         FK(null, '0_5x1')
@@ -701,98 +701,83 @@ const fullKeyboard = [
     ],
 ]
 
+function defaultRows() {
+    return [
+        [
+            Key('29', 2, ['0', '35', 'Light']),
+            Key('14', 3, ['F5', '3A', 'Light']),
+            Key('1A', 10, ['F6', '3B', 'Light']),
+            Key('8', 11, ['F4', '3C', 'Light']),
+            Key('15', 18, ['0', '3D', 'Light']),
+            Key('17', 19, ['0', '3E', 'Light']),
+            Key('1C', 26, ['EE', '3F', 'Light']),
+            Key('18', 27, ['4B', '40', 'Light']),
+            Key('C', 34, ['52', '41']), 
+            Key('12', 35, ['4E', '42']), 
+            Key('13', 42, ['46', '43']), 
+            Key('4C', 45, ['47', '44']), 
+            Key('2A', 40, ['48', '45'])
+        ],
+        [
+            Key('2B', 4, ['39', '1E'], '1x1_25'), 
+            Key('4', 5, ['F2', '1F']), 
+            Key('16', 12, ['F0', '20']), 
+            Key('7', 13, ['F3', '21']), 
+            Key('9', 20, ['0', '22']), 
+            Key('A', 21, ['0', '23']), 
+            Key('B', 28, ['4A', '24']), 
+            Key('D', 29, ['50', '25']), 
+            Key('E', 36, ['51', '26']), 
+            Key('F', 37, ['4F', '27']), 
+            Key('33', 44, ['49', '2D']), 
+            Key('28', 32, ['0', '2E'], '1x1_75')
+        ],
+        [
+            Key('E1', 6, [], '1x1_75'),
+            Key('1D', 7),
+            Key('1B', 14),
+            Key('6', 15, ['0','0','Light']),
+            Key('19', 22, ['0','0','Light']),
+            Key('5', 23, ['0', '34']),
+            Key('11', 30, ['4D', '38']),
+            Key('10', 21, ['L0', '2F']),
+            Key('36', 38, ['L1','30','Light']),
+            Key('37', 39, ['L2','31','Light']),
+            Key('E5', 47, ['L3'], '1x1_25'),
+            Key('C9', 24, ['0','0','0', 'FN1']),
+        ],
+        [
+            Key('E0', 33, [], '1x1_25'),
+            Key('E3', 41),
+            Key('E2', 16),
+            Key('CF', 25, ['0','0','0', 'PN']),
+            Key('C8', 0, ['0', '0', '0', '2C'], '1x1_75'),
+            Key('2C', 48, [], '1x2_75'),
+            Key('E7', 46, ['0','0','0', 'FN']),
+            Key('E6', 1),
+            Key('65', 9),
+            Key('E4', 43, [], '1x1_25'),
+        ],
+    ];
+}
+
 // -----------------------
 //  Vue.js
 // -----------------------
 var app = new Vue({
     el: '#app',
     created: function () {
-        var this_1 = this;
-        if (!isLocal()) {
-            var cookieAllowed = getCookie("allowCookies");
-            if (cookieAllowed != "true") {
-                UIkit.modal.confirm('<p>This tool uses cookies to save your layout. </p><p>By clicking the <span class="uk-button-small uk-button-primary">OK</span> button you are allowing this page to use cookies and enabling auto-save.</p><p>Click <span class="uk-button-small uk-button-default">CANCEL</span> to use this tool without saving feature.</p><p>Note that you can always import or export files either way.</p>')
-                .then(function () { this_1.allowCookies = true; setCookie("allowCookies", "true", 365); }, function () {} );
-            } else {
-                this.allowCookies = true;
-            }
-        }
-
-        if (this.allowCookies) {
-            // load from cookie
-            var rows = getCookie("layout");
-            if (rows != "") {
-                this.rows = JSON.parse(rows);
-            }
-            
-            window.addEventListener('beforeunload', function (e) {
-                this_1.save();
-            });
-        }
+        window.addEventListener('beforeunload', function (e) {
+            e.preventDefault();
+            e.returnValue = false;
+        });
 
         // initialize rows
         if (!this.rows) {
-            this.rows = [
-                [
-                    Key('29', 2, ['3', '35', 'Light']),
-                    Key('14', 3, ['F5', '3A', 'Light']),
-                    Key('1A', 10, ['F6', '3B', 'Light']),
-                    Key('8', 11, ['F4', '3C', 'Light']),
-                    Key('15', 18, ['3', '3D', 'Light']),
-                    Key('17', 19, ['3', '3E', 'Light']),
-                    Key('1C', 26, ['EE', '3F', 'Light']),
-                    Key('18', 27, ['4B', '40', 'Light']),
-                    Key('C', 34, ['52', '41']), 
-                    Key('12', 35, ['4E', '42']), 
-                    Key('13', 42, ['46', '43']), 
-                    Key('4C', 45, ['47', '44']), 
-                    Key('2A', 40, ['48', '45'])
-                ],
-                [
-                    Key('2B', 4, ['39', '1E'], '1x1_25'), 
-                    Key('4', 5, ['F2', '1F']), 
-                    Key('16', 12, ['F0', '20']), 
-                    Key('7', 13, ['F3', '21']), 
-                    Key('9', 20, ['3', '22']), 
-                    Key('A', 21, ['3', '23']), 
-                    Key('B', 28, ['4A', '24']), 
-                    Key('D', 29, ['50', '25']), 
-                    Key('E', 36, ['51', '26']), 
-                    Key('F', 37, ['4F', '27']), 
-                    Key('33', 44, ['49', '2D']), 
-                    Key('28', 32, ['3', '2E'], '1x1_75')
-                ],
-                [
-                    Key('E1', 6, [], '1x1_75'),
-                    Key('1D', 7),
-                    Key('1B', 14),
-                    Key('6', 15, ['3','3','Light']),
-                    Key('19', 22, ['3','3','Light']),
-                    Key('5', 23, ['3', '34']),
-                    Key('11', 30, ['4D', '38']),
-                    Key('10', 21, ['L0', '2F']),
-                    Key('36', 38, ['L1','30','Light']),
-                    Key('37', 39, ['L2','31','Light']),
-                    Key('E5', 47, ['L3'], '1x1_25'),
-                    Key('C9', 24, ['3','3','3', 'FN1']),
-                ],
-                [
-                    Key('E0', 33, [], '1x1_25'),
-                    Key('E3', 41),
-                    Key('E2', 16),
-                    Key('CF', 25, ['3','3','3', 'PN']),
-                    Key('C8', 0, ['3', '3', '3', '2C'], '1x1_75'),
-                    Key('2C', 48, [], '1x2_75'),
-                    Key('E7', 46, ['3','3','3', 'FN']),
-                    Key('E6', 1),
-                    Key('65', 9),
-                    Key('E4', 43, [], '1x1_25'),
-                ],
-            ];
+            this.rows = defaultRows();
         }
     },
     data: {
-        allowCookies: false,
         rows: null,
         active_profile: 0,
         active_tab: 0,
@@ -855,6 +840,92 @@ var app = new Vue({
         },
         currentKeyCode: function () {
             return this.selected_key.code;
+        },
+        shortcuts: function() {
+            var _this = this;
+            var _run_through_rows = function(f) {
+                for (var r in _this.rows) {
+                    var row = _this.rows[r];
+                    for (k in row) {
+                        var key = row[k];
+                        f(key, _this.active_profile);
+                    }
+                }
+            }
+            return {
+                "Remove all RGB controls": function () {
+                    _run_through_rows(function(k, p) {
+                        if (k.profiles[p].pn == 'Light') {
+                            k.profiles[p].pn = '0'
+                        }
+                    });
+                    UIkit.notification('<i class="fas fa-check"></i> RGB control removed.', {pos: 'bottom-right',status:'success'}).$el.classList.add('uk-box-shadow-large');
+                },
+                "Clear Fn layer": function () {
+                    _run_through_rows(function(k, p) {
+                        k.profiles[p].fn = '0'
+                    });
+                    UIkit.notification('<i class="fas fa-check"></i> Fn layer cleared.', {pos: 'bottom-right',status:'success'}).$el.classList.add('uk-box-shadow-large');
+                },
+                "Clear Pn layer": function () {
+                    _run_through_rows(function(k, p) {
+                        k.profiles[p].pn = '0'
+                    });
+                    UIkit.notification('<i class="fas fa-check"></i> Pn layer cleared.', {pos: 'bottom-right',status:'success'}).$el.classList.add('uk-box-shadow-large');
+                },
+                "Clear Fn1 layer": function () {
+                    _run_through_rows(function(k, p) {
+                        k.profiles[p].fn1 = '0'
+                    });
+                    UIkit.notification('<i class="fas fa-check"></i> Fn1 layer cleared.', {pos: 'bottom-right',status:'success'}).$el.classList.add('uk-box-shadow-large');
+                },
+                "Clone to L0": function () {
+                    _run_through_rows(function(k, p) {
+                        console.log(0);
+                        console.log(k.profiles[0].fn);
+                        k.profiles[0].bind = k.profiles[p].bind
+                        k.profiles[0].pn = k.profiles[p].pn
+                        k.profiles[0].fn = k.profiles[p].fn
+                        k.profiles[0].fn1 = k.profiles[p].fn1
+                        console.log(p);
+                        console.log(k.profiles[p].fn)
+                    });
+                    UIkit.notification('<i class="fas fa-check"></i> Copyed profile L'+_this.active_profile+' to L0.', {pos: 'bottom-right',status:'success'}).$el.classList.add('uk-box-shadow-large');
+                    _this.active_profile = 0;
+                },
+                "Clone to L1": function () {
+                    _run_through_rows(function(k, p) {
+                        console.log(k);
+                        k.profiles[1].bind = k.profiles[p].bind
+                        k.profiles[1].pn = k.profiles[p].pn
+                        k.profiles[1].fn = k.profiles[p].fn
+                        k.profiles[1].fn1 = k.profiles[p].fn1
+                    });
+                    UIkit.notification('<i class="fas fa-check"></i> Copyed profile L'+_this.active_profile+' to L1.', {pos: 'bottom-right',status:'success'}).$el.classList.add('uk-box-shadow-large');
+                    _this.active_profile = 1;
+                },
+                "Clone to L2": function () {
+                    _run_through_rows(function(k, p) {
+                        k.profiles[2].bind = k.profiles[p].bind
+                        k.profiles[2].pn = k.profiles[p].pn
+                        k.profiles[2].fn = k.profiles[p].fn
+                        k.profiles[2].fn1 = k.profiles[p].fn1
+                    });
+                    UIkit.notification('<i class="fas fa-check"></i> Copyed profile L'+_this.active_profile+' to L2.', {pos: 'bottom-right',status:'success'}).$el.classList.add('uk-box-shadow-large');
+                    _this.active_profile = 2;
+                },
+                "Clone to L3": function () {
+                    _run_through_rows(function(k, p) {
+                        k.profiles[3].bind = k.profiles[p].bind
+                        k.profiles[3].pn = k.profiles[p].pn
+                        k.profiles[3].fn = k.profiles[p].fn
+                        k.profiles[3].fn1 = k.profiles[p].fn1
+                    });
+                    UIkit.notification('<i class="fas fa-check"></i> Copyed profile L'+_this.active_profile+' to L3.', {pos: 'bottom-right',status:'success'}).$el.classList.add('uk-box-shadow-large');
+                    _this.active_profile = 3;
+                },
+
+            }
         },
         rowsToMPCData: function () {
             var profileCount = 4;
@@ -924,14 +995,14 @@ var app = new Vue({
                                     }
                                 }
                             }
-                            // main layer
+                            // main layer 
                             addToKeyChange(key.code, profile.bind, key.code, "INIT");
                             // pn layer
                             addToKeyChange(key.code, profile.pn, profile.default_pn, "PN");
                             // fn layer
-                            addToKeyChange(key.code, profile.fn, profile.default_fn, "PN");
+                            addToKeyChange(key.code, profile.fn, profile.default_fn, "FN");
                             // fn1 layer
-                            addToKeyChange(key.code, profile.fn1, profile.default_fn1, "PN");
+                            addToKeyChange(key.code, profile.fn1, profile.default_fn1, "FN1");
                         }
                     }
                 }
@@ -976,26 +1047,42 @@ var app = new Vue({
             UIkit.modal('#key-selector-modal').hide()
         },
         generate: function (){
-            console.log("generate");
+            try {
+                var blob = new Blob([convertToBytes(this.rowsToMPCData)], { type: "octet/stream" });
+                UIkit.notification('<i class="fas fa-download"></i> Layout file generated.', {pos: 'bottom-right',status:'success'}).$el.classList.add('uk-box-shadow-large');
+                saveAs(blob, 'layout.cys');
+            } catch {
+                UIkit.notification('<i class="fas fa-exclamation-circle"></i> Generation failed. Something is wrong on our part.', {pos: 'bottom-right',status:'danger'}).$el.classList.add('uk-box-shadow-large');
+            }
+
         },
-        save: function () {
-            setCookie("layout", JSON.stringify(this.rows), 365);
-            UIkit.notification('<div class="uk-text-center"><i class="far fa-save"></i> Layout saved. </div>', {pos: 'bottom-right', status:'success', timeout: 2500}).$el.classList.add("uk-box-shadow-large");
-        },
-        importFile: function () {
-            UIkit.modal.alert("<p>You can open backup files exported from offical MPC.</p><p>Click here to learn how to export from vortex's MPC.</p>")
-            
+        importFile: function (file) {
+            var reader = new FileReader();
+            var _this = this;
+            reader.onload = function(e) {
+                try {
+                    _this.rows = rowsFromJSON(reader.result);
+                    UIkit.notification('<i class="fas fa-check"></i> Layout file opened.', {pos: 'bottom-right',status:'success'}).$el.classList.add('uk-box-shadow-large');
+                } catch (err) {
+                    UIkit.notification('<i class="fas fa-exclamation-circle"></i> Failed to open.', {pos: 'bottom-right',status:'danger'}).$el.classList.add('uk-box-shadow-large');
+                }   
+            }
+            try {
+                reader.readAsText(file[0]);
+            } catch (err) {
+                UIkit.notification('<i class="fas fa-exclamation-circle"></i> Can not open this file.', {pos: 'bottom-right',status:'warning'}).$el.classList.add('uk-box-shadow-large');
+            }
         },
         exportFile: function () {
             var _this = this;
             var toFile = function () {
                 var exportData = {
-                    setting:{"keyboard":"core4700","language":"us","profileCount":4,"layerList":["fn","pn","fn1"],"profile":"1","layer":"INIT"}, // compatibility of MPC
-                    data: _this.rowsToMPCData,
+                    layout: _this.rows,
                 };
                 return JSON.stringify(exportData);
             }
             var blob = new Blob([toFile()], { type: "text/plain;charset=utf-8" });
+            UIkit.notification('<i class="fas fa-download"></i> Download started.', {pos: 'bottom-right',status:'success'}).$el.classList.add('uk-box-shadow-large');
             saveAs(blob, 'export.txt');
         },
     }
@@ -1020,41 +1107,17 @@ function isSpecial(keycode) {
     return special_keys.indexOf(keycode) >= 0;
 }
 
-function stringToObj (importedStr) {
-    var importedJsonObj = JSON.parse(importedStr);
-}
+function rowsFromJSON(str) {
+    var importedJsonObj = JSON.parse(str);
 
-function fileToObj () {
-    var inputFile = $("#inputFile")[0];
-    if(inputFile && document.createEvent) {
-        var evt = document.createEvent("MouseEvents");
-        evt.initEvent("click", true, false);
-        inputFile.dispatchEvent(evt);
+    if (!importedJsonObj["layout"]) {
+        throw "invalid";
     }
-}
 
-function setCookie(cname, cvalue, exdays) {
-    var d = new Date();
-    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-    var expires = "expires="+d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-}
+    var result = importedJsonObj["layout"];
+    return result;
 
-function getCookie(cname) {
-    var name = cname + "=";
-    var ca = document.cookie.split(';');
-    for(var i = 0; i < ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-        }
-    }
-    return "";
 }
-
 
 // -----------------------
 //  Helper functions Grabbed from offical MPC
@@ -1095,6 +1158,7 @@ function isLocal(){
 
 
 function convertToBytes(mpcData) {
+    var profileCount = 4;
     var itemSize = mpcData.macro.length * 2 + mpcData.keyChange.length + mpcData.functionSet.length;
     var cysHeader = {
         title: stringToBytes('CYFI'),
@@ -1111,7 +1175,7 @@ function convertToBytes(mpcData) {
         var filterFunctionSet = mpcData.functionSet.filter(function (row) {
             return parseInt(row.profileIndex) === filterIndex;
         });
-        $.each(filterFunctionSet, function (idx, row) {
+        filterFunctionSet.forEach(function (row, idx) {
             var profile = {
                 pos: profilePos,
                 len: [2],
@@ -1137,7 +1201,7 @@ function convertToBytes(mpcData) {
         var filterKeyChange = mpcData.keyChange.filter(function (row) {
             return parseInt(row.profileIndex) === filterIndex;
         });
-        $.each(filterKeyChange, function (idx, row) {
+        filterKeyChange.forEach(function (row, idx) {
             var profileIndex = [];
             profileIndex.push(parseInt(row.sourceKey, 16));
             if (row.sourceLayer == 'FN') {
@@ -1192,7 +1256,7 @@ function convertToBytes(mpcData) {
             return parseInt(row.profileIndex) === filterIndex;
         });
         var macroPos = profilePos + filterMacro.length * 8 + 4;
-        $.each(filterMacro, function (idx, row) {
+        filterMacro.forEach(function (row, idx) {
             var profileData = parseInt(row.macroType).toString(2) + '111';
             if (row.sourceLayer == 'FN') {
                 profileData += '01';
@@ -1230,7 +1294,7 @@ function convertToBytes(mpcData) {
                 pos: macroPos,
                 macro: []
             };
-            $.each(row.macro, function (idx, item) {
+            row.macro.forEach(function (item, idx) {
                 var macroData = '';
                 if (item.event == '1') {
                     macroData += '001';
@@ -1285,20 +1349,20 @@ function convertToBytes(mpcData) {
     }
     var bytes = [];
     bytes = bytes.concat(cysHeader.title, cysHeader.rev, cysHeader.itemSize);
-    $.each(cysItem, function (idx, item) {
+    cysItem.forEach(function (item, idx) {
         bytes = bytes.concat(item.type, item.profileIndex, item.macroIndex, item.itemDataShift);
     });
     while (bytes.length < profilePos) {
         bytes.push(0);
     }
-    $.each(cysProfile, function (idx, profile) {
+    cysProfile.forEach(function (profile, idx) {
         var newData = [];
         newData = newData.concat(profile.len, profile.key, profile.index, profile.data);
         for (var pos = 0; pos < newData.length; pos++) {
             bytes[profile.pos + pos] = newData[pos];
         }
     });
-    $.each(cysMacro, function (idx, macro) {
+    cysMacro.forEach(function (macro, idx) {
         var newData = [];
         newData = newData.concat(macro.macro);
         for (var pos = 0; pos < newData.length; pos++) {

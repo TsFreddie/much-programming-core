@@ -41,8 +41,11 @@
                 </nav>
 
                 <div class="uk-padding-small uk-text-right">
-                    <button v-if="allowCookies" class="uk-button-small uk-button-default uk-box-shadow-small" @click="save()">Save</button>
-                    <button class="uk-button-small uk-button-default uk-box-shadow-small" @click="importFile()">Open JSON</button>
+                    <form class="uk-upload" uk-form-custom>
+                        <input id="importFile" type="file" @change="importFile($event.target.files)">
+                        <button class="uk-button-small uk-button-default uk-box-shadow-small" type="button">Open JSON</button>
+                    </form>
+                    
                     <button class="uk-button-small uk-button-default uk-box-shadow-small" @click="exportFile()">Save as JSON</button>
                     <button class="uk-button-small uk-button-primary uk-box-shadow-small" @click="generate()">Generate Binary File</button>
                 </div>
@@ -60,14 +63,14 @@
                                 <div class="key_container">
                                     <span class="key_legend_main" v-html="keyLegend[key.profiles[active_profile].bind]"></span>
                                     <span class="key_legend_pn color_pn"
-                                          v-html="key.profiles[active_profile].bind!='3' && key.profiles[active_profile].bind==key.profiles[active_profile].pn ? '\<i class=\'far fa-clone\'\>\</i\>' : keyLegend[key.profiles[active_profile].pn]">
+                                          v-html="key.profiles[active_profile].bind!='0' && key.profiles[active_profile].bind==key.profiles[active_profile].pn ? '\<i class=\'far fa-clone\'\>\</i\>' : keyLegend[key.profiles[active_profile].pn]">
                                     </span>
                                 </div>
                                 <span class="key_legend_fn1 color_fn1"
-                                      v-html="key.profiles[active_profile].bind!='3' && key.profiles[active_profile].bind==key.profiles[active_profile].fn1 ? '\<i class=\'far fa-clone\'\>\</i\>' : keyLegend[key.profiles[active_profile].fn1]">
+                                      v-html="key.profiles[active_profile].bind!='0' && key.profiles[active_profile].bind==key.profiles[active_profile].fn1 ? '\<i class=\'far fa-clone\'\>\</i\>' : keyLegend[key.profiles[active_profile].fn1]">
                                 </span>
                                 <span class="key_legend_fn color_fn"
-                                      v-html="key.profiles[active_profile].bind!='3' && key.profiles[active_profile].bind==key.profiles[active_profile].fn ? '\<i class=\'far fa-clone\'\>\</i\>' : keyLegend[key.profiles[active_profile].fn]">
+                                      v-html="key.profiles[active_profile].bind!='0' && key.profiles[active_profile].bind==key.profiles[active_profile].fn ? '\<i class=\'far fa-clone\'\>\</i\>' : keyLegend[key.profiles[active_profile].fn]">
                                 </span>
                             </div>
                         </div>
@@ -203,7 +206,11 @@
                                 <p v-if="currentKeyHasLayers"><span class="color_fn1">Fn1 Layer: </span> <button class="uk-button uk-button-default" @click="bindKey(3)">{{ keyName[currentKeyProfile.fn1] }}</button></p> 
                             </div>
                         </li>
-                        <li>Bazinga!</li>
+                        <li>
+                            <div class="uk-column-1-2">
+                                <p v-for="(shortcut, index) in shortcuts"><button class="uk-button uk-button-default" @click="UIkit.modal.confirm('Are you sure?').then(function(){shortcut();}, function(){});">{{ index }}</button></p>
+                            </div>
+                        </li>
                     </ul>
                 </div>
             </div>

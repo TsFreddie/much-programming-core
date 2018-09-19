@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Much Programming Core</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+        <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.16/css/uikit.min.css" />
+        <link rel="stylesheet" href="css/muchpc.css" />
+        <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.16/js/uikit.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.16/js/uikit-icons.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.3/FileSaver.min.js"></script>
+        <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+    </head>
+
+    <body>
+        <div class="background" id="app"  uk-height-viewport="expand">
+            <div class="page uk-box-shadow-large">
+                <nav class="uk-navbar-container uk-box-shadow-medium" uk-navbar>
+                    <div class="uk-navbar-left">  
+                        <a class="uk-navbar-item uk-logo">TsFreddie's MPC</a>
+                        <div class="uk-navbar-item uk-text-meta"> Such Core, Much Programming</div>
+                        <a class="github-button" href="https://github.com/tsfreddie" data-size="large" aria-label="Follow @TsFreddie on GitHub">Follow @TsFreddie</a>
+                    </div>
+
+                    <div class="uk-navbar-right">  
+                        <div class="uk-navbar-item">Profile: </div>
+                        <div class="uk-navbar-item">
+                            <div class="uk-subnav uk-subnav-pill">
+                                <li @click="active_profile = 0" :class="{'uk-active': active_profile == 0}" type="button"><a class="uk-box-shadow-small uk-box-shadow-hover-medium">L0</a></li>
+                                <li @click="active_profile = 1" :class="{'uk-active': active_profile == 1}" type="button"><a class="uk-box-shadow-small uk-box-shadow-hover-medium">L1</a></li>
+                                <li @click="active_profile = 2" :class="{'uk-active': active_profile == 2}" type="button"><a class="uk-box-shadow-small uk-box-shadow-hover-medium">L2</a></li>
+                                <li @click="active_profile = 3" :class="{'uk-active': active_profile == 3}" type="button"><a class="uk-box-shadow-small uk-box-shadow-hover-medium">L3</a></li>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+
+                <div class="uk-padding-small uk-text-right">
+                    <button v-if="allowCookies" class="uk-button-small uk-button-default uk-box-shadow-small" @click="save()">Save</button>
+                    <button class="uk-button-small uk-button-default uk-box-shadow-small" @click="importFile()">Open JSON</button>
+                    <button class="uk-button-small uk-button-default uk-box-shadow-small" @click="exportFile()">Save as JSON</button>
+                    <button class="uk-button-small uk-button-primary uk-box-shadow-small" @click="generate()">Generate Binary File</button>
+                </div>
+                <div id="container" class="uk-padding uk-padding-remove-top">
+                    <div class="core">
+                        <div class="led" :class="ledClass"></div>
+                        <div class="row"
+                            v-for="(keys, index) in rows"
+                            :row="index">
+                            <div                  
+                                v-for="key in keys"
+                                class="key_border key"
+                                @click='selected_key = key; UIkit.tab("#tabs").show(2)'
+                                :class="['key_'+key.type, {selected: selected_key == key}]">
+                                <div class="key_container">
+                                    <span class="key_legend_main" v-html="keyLegend[key.profiles[active_profile].bind]"></span>
+                                    <span class="key_legend_pn color_pn"
+                                          v-html="key.profiles[active_profile].bind!='3' && key.profiles[active_profile].bind==key.profiles[active_profile].pn ? '\<i class=\'far fa-clone\'\>\</i\>' : keyLegend[key.profiles[active_profile].pn]">
+                                    </span>
+                                </div>
+                                <span class="key_legend_fn1 color_fn1"
+                                      v-html="key.profiles[active_profile].bind!='3' && key.profiles[active_profile].bind==key.profiles[active_profile].fn1 ? '\<i class=\'far fa-clone\'\>\</i\>' : keyLegend[key.profiles[active_profile].fn1]">
+                                </span>
+                                <span class="key_legend_fn color_fn"
+                                      v-html="key.profiles[active_profile].bind!='3' && key.profiles[active_profile].bind==key.profiles[active_profile].fn ? '\<i class=\'far fa-clone\'\>\</i\>' : keyLegend[key.profiles[active_profile].fn]">
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <ul id="tabs" uk-tab>
+                        <li><a><i class="fas fa-info-circle"></i></a></li>
+                        <li><a>Macros</a></li>
+                        <li><a>Key Settings</a></li>
+                        <li><a>Toolbox</a></li>
+                    </ul>
+                    <ul class="uk-switcher uk-margin">
+                        <li>
+                            <p>
+                                <a class="uk-button uk-button-primary" href="http://www.vortexgear.tw/db/upload/webdata4/6vortex_201861271445393.exe">MPC firmware</a>
+                                <a class="uk-button uk-button-default" href="http://www.vortexgear.tw/db/upload/webdata4/6vortex_201861123444447399.pdf">Manual</a>
+                            </p>
+                            
+                            <h4>FAQ:</h4>
+                            <ul class="uk-list uk-list-striped">
+                                <li>
+                                    <a class="uk-link-heading" uk-toggle="target: #faq-apply; animation: uk-animation-fade">How do I apply my layout?</a>
+                                    <div id="faq-apply" class="uk-padding-small" hidden>
+                                        <p>
+                                            Short version: <br>1.Unplug your keyboard<br>2.Hold both Fn and D keys<br>3.plug in your keyboard, and a drive will appear on you computer.<br>4.copy the layout file into the drive. <br>5.make sure there are only 1 file in the drive. <br>6.unplug your keyboard.<br>7.wait 3 seconds before plugging your keyboard in.
+                                        </p>
+                                        <p>* Fn key is the fouth key from the right on the bottom row.</p>
+                                        <p>
+                                            If you still don't know how to apply the layout, you may want to read the offical manual.
+                                        </p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <a class="uk-link-heading" uk-toggle="target: #faq-keep; animation: uk-animation-fade">Do I keep my layout if I flash the MPC firmware?</a>
+                                    <div id="faq-keep" class="uk-padding-small" hidden>
+                                        <p>
+                                            No. Your layout will be wiped when you flash the MPC firmware.
+                                        </p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <a class="uk-link-heading" uk-toggle="target: #faq-lspace; animation: uk-animation-fade">My left space key acts like a Fn modifier after I flashed the firmware.</a>
+                                    <div id="faq-lspace" class="uk-padding-small" hidden>
+                                        <p>
+                                            There is a bug in the firmware that caused this. To fix it, simply apply a layout file from this tool. I fixed it for you in this tool.
+                                        </p>
+                                        <p>
+                                            To get technical, each key have another code, vortexgear named it ktm code (Key-to-modifier code I guess), that allows that key to acts like Pn/Fn/Fn1 modifiers. However, vortexgear assigned a value of 0 to the left space key. So, when no modifier is swaped, they default to value 0. As the result, the left space is bind with Fn by default. In fact, in the official MPC tool, if you only set Fn in Func.key change, the left space bar will become Fn1 instead. To fix that in the offical tool, you need to set every modifier key to release the left space key for remapping.
+                                        </p>
+                                        <p>
+                                            Nonetheless, you don't need to worry about any of that, this tool automatically generate the fix in the binary file.
+                                        </p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <a class="uk-link-heading" uk-toggle="target: #faq-mpc; animation: uk-animation-fade">What's different in MPC firmware?</a>
+                                    <div id="faq-mpc" class="uk-padding-small" hidden>
+                                        <p>
+                                            You lose the ability of on-board programming.
+                                        </p>
+                                        <p>
+                                            You can change more keys. For example, you aren't allowed to change Fn + T on the original firmware.
+                                        </p>
+                                        <p>
+                                            You can change the default profile (L0) using this tool. (The offical tool won't let you.)
+                                        </p>
+                                        <p>
+                                            You cannot swap Fn Modifier with another key. (You can, but there is a bug in the firmware that won't let you rebind the R_Win key. Due to this reason, you aren't allowed to rebind Fn key in this tool.)
+                                        </p>
+                                        <p>
+                                            You gain another programmable layer: Pn layer. I recommend to make more use of the Pn layer instead of Fn due to the fact that you can't change the location of Fn key. And that way you don't lose the ability to switch layer.
+                                        </p>
+                                        <p>
+                                            You lose the Caplock indicator.
+                                        </p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <a class="uk-link-heading" uk-toggle="target: #faq-profile-key; animation: uk-animation-fade">Can I rebind Fn + M, &lt, &gt and Shift?</a>
+                                    <div id="faq-profile-key" class="uk-padding-small" hidden>
+                                        <p>
+                                            Yes, you can. The official manual stated that you cannot rebind those key combination. However, that is NOT true, you can totally rebind those.
+                                        </p>
+                                        <p>
+                                            However, you do lose the ability to switch to the specific profile if you choose to rebind. And there is currently no way to map the layout switch function to another key.
+                                        </p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <a class="uk-link-heading" uk-toggle="target: #faq-blub; animation: uk-animation-fade">What is <i class="fas fa-lightbulb"></i> ?</a>
+                                    <div id="faq-blub" class="uk-padding-small" hidden>
+                                        <p>
+                                            Believe or not, Vortex CORE MPC firmware do have RGB control.
+                                            This maybe due to the fact that there is a unreleased RGB version of CORE, and both version share the same firmware. 
+                                        </p>
+                                        <p>
+                                            So the <i class="fas fa-lightbulb"></i> icon indicates there is a RGB control function mapped to that key in Pn layer. You probably won't need them if you have a regular CORE. In that case, you can unmap all RGB control in the toolbox.
+                                        </p>
+                                        <p>
+                                            That being said, there is a single RGB light in a regular CORE: THE CAPLOCK INDICATOR! Sadly, this means, the MPC firmware does not have a real Caplock indicator.
+                                            Instead, the indicator light is controled by RGB settings.
+                                        </p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <a class="uk-link-heading" uk-toggle="target: #faq-clone; animation: uk-animation-fade">What is <i class="far fa-clone"></i> ?</a>
+                                    <div id="faq-clone" class="uk-padding-small" hidden>
+                                        <p>
+                                            This icon simply means you have the same keybind on a layer as the keybind on the key itself.
+                                        </p>
+                                        <p>
+                                            You might find it handy on modifier keys, when you need shift to act like shift in all layers. 
+                                        </p>
+                                    </div>
+                                </li>
+                            </ul>
+
+                            <p class="uk-text-meta">
+                                This project is NOT affiliated with, funded, or in any way associated with Vortexgear with the exception of following: <br>
+                                Binary format is designed by Vortexgear. <br>
+                                MPC firmware and manual is provided and hosted by Vortexgear. <br>
+                            </p>
+                        </li>
+                        <li>Coming Soon...</li>
+                        <li>
+                            <div v-if="!selected_key" class="uk-alert-primary" uk-alert>
+                                Please select a key.
+                            </div>
+                            <div v-else-if="selected_key.locked" class="uk-alert-danger" uk-alert>
+                                Sorry, this key cannot be changed.
+                            </div>
+                            <div v-else class="uk-column-1-2">
+                                <p><span>Base Key: </span> <button class="uk-button uk-button-default" @click="bindKey(0)">{{ keyName[currentKeyProfile.bind] }}</button></p>
+                                <p v-if="currentKeyHasLayers"><span class="color_pn">Pn Layer: </span> <button class="uk-button uk-button-default" @click="bindKey(1)">{{ keyName[currentKeyProfile.pn] }}</button></p>
+                                <p v-if="currentKeyHasLayers"><span class="color_fn">Fn Layer: </span> <button class="uk-button uk-button-default" @click="bindKey(2)">{{ keyName[currentKeyProfile.fn] }}</button></p>
+                                <p v-if="currentKeyHasLayers"><span class="color_fn1">Fn1 Layer: </span> <button class="uk-button uk-button-default" @click="bindKey(3)">{{ keyName[currentKeyProfile.fn1] }}</button></p> 
+                            </div>
+                        </li>
+                        <li>Bazinga!</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="key-selector-modal" class="uk-flex-top uk-modal-container" uk-modal>
+                <div v-if="selected_key" class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
+                    <div v-if="isUnbindable(currentKeyDefault) && currentKeyDefault == currentKeyBind" class="uk-alert-primary" uk-alert>
+                        If you change this key, it will lose the ability to {{ UnbindableDesc(currentKeyDefault) }}.
+                    </div>
+                    <div v-if="binding_key=='FN' || binding_key=='FN1' || binding_key=='PN'" class="uk-alert-primary" uk-alert>
+                        If you set this key as a modifier, you will lose other layers on this key.
+                    </div>
+                    <div class="fullKeyboard">
+                        <div class="prompt">
+                            <p class="uk-text-lead">Bind {{ currentKeyLayerPrefix + keyName[currentKeyCode] }} to {{ keyName[binding_key] }}</p>
+                        </div>
+                        <div class="row"
+                        v-for="(keys, index) in fullKeyboard"
+                        :row="index">
+                            <div                  
+                                v-for="key in keys"
+                                class="key_border key small"
+                                v-if="key.code!=null && (selected_key_layer == 0 || (key.code != 'FN' && key.code != 'PN' && key.code != 'FN1'))"
+                                @click="binding_key=key.code"
+                                :class="['fk_'+key.type, {selected: binding_key == key.code}]">
+                                <div class="key_container">
+                                    <div class="key_legend_main">
+                                        <span v-html="keyLegend[key.code]"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else :class="['fk_space', 'fk_'+key.type]"></div>
+                        </div>
+                    </div>
+                    <button class="uk-button uk-button-primary" @click="confirmBind()">Confirm</button>
+                    <button class="uk-button uk-button-secondary" :disabled="binding_key==currentKeyDefault" @click="binding_key=currentKeyDefault">Default</button>
+                    <button class="uk-button uk-button-default uk-modal-close">Cancel</button>
+                    <div           
+                        v-if="isUnbindable(currentKeyDefault)"
+                        class="uk-align-right key_border key small fk_1x1"
+                        :class="{selected: binding_key == currentKeyDefault}"
+                        @click="binding_key = currentKeyDefault;"
+                        uk-tooltip="There's no keycode of this function. However you can use this key to restore its original function.">
+                        <div class="key_container">
+                            <div class="key_legend_main">
+                                <span v-html="keyLegend[currentKeyDefault]"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="js/muchpc.js"></script>
+    </body>
+</html>

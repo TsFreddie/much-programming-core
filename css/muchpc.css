@@ -1,0 +1,310 @@
+/* Vue UIKit compatibility fix */
+.uk-icon>svg:nth-child(2) {display: none;}
+
+.key_border {
+    box-shadow:0px 0px 0px 1px black inset;
+    border-radius: 3px;
+    background: #dddddd;
+    display: inline-block;
+}
+
+.background {
+    background-color: #f0f0f0;
+}
+
+.page {
+    margin: auto;
+    max-width: 10.25in;
+    min-width: 10.25in;
+    background-color: #ffffff;
+}
+
+#key-selector-modal .uk-modal-dialog {
+    min-width: 12in;
+    max-width: 12in;
+}
+
+.code-block {
+    box-shadow:0px 0px 0px 1px #ccccdd inset;
+    padding-left:3px;
+    padding-right:3px;
+    font-family: 'Ubuntu Sans Mono', monospace;
+}
+.container {
+    padding-left: 0.5in;
+    padding-right: 0.5in;
+    padding-bottom: 0.25in;
+}
+
+.tabs {
+    padding-top: 1em;
+    padding-bottom: 5em;
+}
+
+.led {
+    position: absolute;
+    left: 52mm;
+    top: 65mm;
+    width: 2in;
+    height: 0.5in;
+}
+
+.led_red {
+    background-image: radial-gradient(red, transparent, transparent);
+}
+
+.led_green {
+    background-image: radial-gradient(green, transparent, transparent);
+}
+
+.led_blue {
+    background-image: radial-gradient(blue, transparent, transparent);
+}
+
+.core {
+    text-align: center;
+    position: relative;
+}
+
+.key_container {
+    margin-left:auto;
+    margin-right:auto;
+    margin-top: 2mm;
+    background: #ffffff;
+    height: 12mm;
+    overflow: hidden;
+}
+
+.key_legend_main {
+    text-align: center;
+}
+
+.color_pn {
+    color: #edad00;
+}
+
+.color_fn {
+    color: blue;
+}
+
+.color_fn1 {
+    color: red;
+}
+
+.key_legend_pn {
+    position: absolute;
+    top: 9.5mm;
+    left: 3.5mm;
+    font-size: 9pt;
+}
+
+.key_legend_fn1 {
+    position: absolute;
+    left: 1mm;
+    top: 13.5mm;
+    font-size: 9pt;
+}
+.key_legend_fn {
+    position: absolute;
+    top: 13.5mm;
+    right: 1mm;
+    font-size: 9pt;
+}
+
+.key {
+    position: relative;
+    padding-bottom: 4mm;
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.key.selected {
+    box-shadow:0px 0px 0px 1px blue inset;
+    background: #ccccdd;
+}
+
+.key.selected .key_container {
+    background: #eeeeff;
+}
+
+.key_1x1 {
+    width: 18mm;
+}
+
+.key_1x1 .key_container {
+    width: 12mm;
+}
+
+.key_1x1_25 {
+    width: 22.5mm;
+}
+
+.key_1x1_25 .key_container {
+    width: 16.5mm;
+}
+
+.key_1x1_75 {
+    width: 31.5mm;
+}
+
+.key_1x1_75 .key_container {
+    width: 25.5mm;
+}
+
+.key_1x2_75 {
+    width: 49.5mm;
+}
+
+.key_1x2_75 .key_container {
+    width: 43.5mm;
+}
+
+.fullKeyboard {
+    text-align: center;
+    font-size: 10pt;
+    padding-bottom: 0.5in;
+}
+
+.key.small {
+    padding-bottom:1mm;
+}
+
+.key.small .key_container {
+    margin-top: 1mm;
+}
+
+.key.small .key_legend_main {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -55%);
+}
+
+.fk_space {
+    display: inline-block;
+}
+
+.fk_0_5x1 {
+    height: 6mm;
+    width: 12mm;
+}
+
+.fk_0_5x1 .key_container {
+    height: 5mm;
+    width: 10mm;
+}
+
+.fk_1x0_5 {
+    height: 10mm;
+    width: 6mm;
+}
+
+.fk_1x0_5 .key_container {
+    height: 9mm;
+    width: 4mm;
+}
+
+.fk_1x1 {
+    height: 10mm;
+    width: 12mm;
+}
+
+.fk_1x1 .key_container {
+    height: 9mm;
+    width: 10mm;
+}
+
+.fk_1x1_25 {
+    height: 10mm;
+    width: 15mm;
+}
+
+.fk_1x1_25 .key_container {
+    height: 9mm;
+    width: 13mm;
+}
+
+.fk_1x1_5 {
+    height: 10mm;
+    width: 18mm;
+}
+
+.fk_1x1_5 .key_container {
+    height: 9mm;
+    width: 16mm;
+}
+
+.fk_1x1_75 {
+    height: 10mm;
+    width: 21mm;
+}
+
+.fk_1x1_75 .key_container {
+    height: 9mm;
+    width: 19mm;
+}
+
+.fk_1x2 {
+    height: 10mm;
+    width: 24mm;
+}
+
+.fk_1x2 .key_container {
+    height: 9mm;
+    width: 22mm;
+}
+
+.fk_1x2_25 {
+    height: 10mm;
+    width: 27mm;
+}
+
+.fk_1x2_25 .key_container {
+    height: 9mm;
+    width: 25mm;
+}
+
+.fk_1x2_75 {
+    height: 10mm;
+    width: 33mm;
+}
+
+.fk_1x2_75 .key_container {
+    height: 9mm;
+    width: 31mm;
+}
+
+
+.fk_1x4 {
+    height: 10mm;
+    width: 48mm;
+}
+
+.fk_1x4 .key_container {
+    height: 9mm;
+    width: 46mm;
+}
+
+.fk_1x6_25 {
+    height: 10mm;
+    width: 75mm;
+}
+
+.fk_1x6_25 .key_container {
+    height: 9mm;
+    width: 73mm;
+}
+
+.fk_2x1 {
+    height: 21mm;
+    width: 12mm;
+    position: absolute;
+}
+
+.fk_2x1 .key_container {
+    height: 20mm;
+    width: 10mm;
+}

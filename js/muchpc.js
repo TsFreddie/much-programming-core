@@ -713,6 +713,8 @@ var app = new Vue({
             if (cookieAllowed != "true") {
                 UIkit.modal.confirm('<p>This tool uses cookies to save your layout. </p><p>By clicking the <span class="uk-button-small uk-button-primary">OK</span> button you are allowing this page to use cookies and enabling auto-save.</p><p>Click <span class="uk-button-small uk-button-default">CANCEL</span> to use this tool without saving feature.</p><p>Note that you can always import or export files either way.</p>')
                 .then(function () { this_1.allowCookies = true; setCookie("allowCookies", "true", 365); }, function () {} );
+            } else {
+                this.allowCookies = true;
             }
         }
 

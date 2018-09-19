@@ -719,71 +719,81 @@ var app = new Vue({
         }
 
         if (this.allowCookies) {
+            // load from cookie
+            var rows = getCookie("layout");
+            if (rows != "") {
+                this.rows = JSON.parse(rows);
+            }
+            
             window.addEventListener('beforeunload', function (e) {
                 this_1.save();
             });
         }
+
+        // initialize rows
+        if (!this.rows) {
+            this.rows = [
+                [
+                    Key('29', 2, ['3', '35', 'Light']),
+                    Key('14', 3, ['F5', '3A', 'Light']),
+                    Key('1A', 10, ['F6', '3B', 'Light']),
+                    Key('8', 11, ['F4', '3C', 'Light']),
+                    Key('15', 18, ['3', '3D', 'Light']),
+                    Key('17', 19, ['3', '3E', 'Light']),
+                    Key('1C', 26, ['EE', '3F', 'Light']),
+                    Key('18', 27, ['4B', '40', 'Light']),
+                    Key('C', 34, ['52', '41']), 
+                    Key('12', 35, ['4E', '42']), 
+                    Key('13', 42, ['46', '43']), 
+                    Key('4C', 45, ['47', '44']), 
+                    Key('2A', 40, ['48', '45'])
+                ],
+                [
+                    Key('2B', 4, ['39', '1E'], '1x1_25'), 
+                    Key('4', 5, ['F2', '1F']), 
+                    Key('16', 12, ['F0', '20']), 
+                    Key('7', 13, ['F3', '21']), 
+                    Key('9', 20, ['3', '22']), 
+                    Key('A', 21, ['3', '23']), 
+                    Key('B', 28, ['4A', '24']), 
+                    Key('D', 29, ['50', '25']), 
+                    Key('E', 36, ['51', '26']), 
+                    Key('F', 37, ['4F', '27']), 
+                    Key('33', 44, ['49', '2D']), 
+                    Key('28', 32, ['3', '2E'], '1x1_75')
+                ],
+                [
+                    Key('E1', 6, [], '1x1_75'),
+                    Key('1D', 7),
+                    Key('1B', 14),
+                    Key('6', 15, ['3','3','Light']),
+                    Key('19', 22, ['3','3','Light']),
+                    Key('5', 23, ['3', '34']),
+                    Key('11', 30, ['4D', '38']),
+                    Key('10', 21, ['L0', '2F']),
+                    Key('36', 38, ['L1','30','Light']),
+                    Key('37', 39, ['L2','31','Light']),
+                    Key('E5', 47, ['L3'], '1x1_25'),
+                    Key('C9', 24, ['3','3','3', 'FN1']),
+                ],
+                [
+                    Key('E0', 33, [], '1x1_25'),
+                    Key('E3', 41),
+                    Key('E2', 16),
+                    Key('CF', 25, ['3','3','3', 'PN']),
+                    Key('C8', 0, ['3', '3', '3', '2C'], '1x1_75'),
+                    Key('2C', 48, [], '1x2_75'),
+                    Key('E7', 46, ['3','3','3', 'FN']),
+                    Key('E6', 1),
+                    Key('65', 9),
+                    Key('E4', 43, [], '1x1_25'),
+                ],
+            ];
+        }
     },
     data: {
         allowCookies: false,
-        rows:
-        [
-            [
-                Key('29', 2, ['3', '35', 'Light']),
-                Key('14', 3, ['F5', '3A', 'Light']),
-                Key('1A', 10, ['F6', '3B', 'Light']),
-                Key('8', 11, ['F4', '3C', 'Light']),
-                Key('15', 18, ['3', '3D', 'Light']),
-                Key('17', 19, ['3', '3E', 'Light']),
-                Key('1C', 26, ['EE', '3F', 'Light']),
-                Key('18', 27, ['4B', '40', 'Light']),
-                Key('C', 34, ['52', '41']), 
-                Key('12', 35, ['4E', '42']), 
-                Key('13', 42, ['46', '43']), 
-                Key('4C', 45, ['47', '44']), 
-                Key('2A', 40, ['48', '45'])
-            ],
-            [
-                Key('2B', 4, ['39', '1E'], '1x1_25'), 
-                Key('4', 5, ['F2', '1F']), 
-                Key('16', 12, ['F0', '20']), 
-                Key('7', 13, ['F3', '21']), 
-                Key('9', 20, ['3', '22']), 
-                Key('A', 21, ['3', '23']), 
-                Key('B', 28, ['4A', '24']), 
-                Key('D', 29, ['50', '25']), 
-                Key('E', 36, ['51', '26']), 
-                Key('F', 37, ['4F', '27']), 
-                Key('33', 44, ['49', '2D']), 
-                Key('28', 32, ['3', '2E'], '1x1_75')
-            ],
-            [
-                Key('E1', 6, [], '1x1_75'),
-                Key('1D', 7),
-                Key('1B', 14),
-                Key('6', 15, ['3','3','Light']),
-                Key('19', 22, ['3','3','Light']),
-                Key('5', 23, ['3', '34']),
-                Key('11', 30, ['4D', '38']),
-                Key('10', 21, ['L0', '2F']),
-                Key('36', 38, ['L1','30','Light']),
-                Key('37', 39, ['L2','31','Light']),
-                Key('E5', 47, ['L3'], '1x1_25'),
-                Key('C9', 24, ['3','3','3', 'FN1']),
-            ],
-            [
-                Key('E0', 33, [], '1x1_25'),
-                Key('E3', 41),
-                Key('E2', 16),
-                Key('CF', 25, ['3','3','3', 'PN']),
-                Key('C8', 0, ['3', '3', '3', '2C'], '1x1_75'),
-                Key('2C', 48, [], '1x2_75'),
-                Key('E7', 46, ['3','3','3', 'FN']),
-                Key('E6', 1),
-                Key('65', 9),
-                Key('E4', 43, [], '1x1_25'),
-            ],
-        ],
+        rows: null,
         active_profile: 0,
         active_tab: 0,
         selected_key: null,
@@ -969,7 +979,7 @@ var app = new Vue({
             console.log("generate");
         },
         save: function () {
-            console.log("wow");
+            setCookie("layout", JSON.stringify(this.rows), 365);
             UIkit.notification('<div class="uk-text-center"><i class="far fa-save"></i> Layout saved. </div>', {pos: 'bottom-right', status:'success', timeout: 2500}).$el.classList.add("uk-box-shadow-large");
         },
         importFile: function () {

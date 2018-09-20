@@ -1,64 +1,20 @@
-// -----------------------
-//  Templates
-// -----------------------
-function Key(keyCode, fnktm, defaults = [], type = '1x1') {
-    var default_fn = !defaults[0] ? '0' : defaults[0]
-    var default_fn1 = !defaults[1] ? '0' : defaults[1]
-    var default_pn = !defaults[2] ? '0' : defaults[2]
-    var override_bind = !defaults[3] ? keyCode : defaults[3]
-    return {
-        code: keyCode,
-        locked: locked_keys.indexOf(override_bind) >= 0,
-        ktm: fnktm,
-        profiles: [
-        {
-            default_fn: default_fn,
-            default_fn1: default_fn1,
-            default_pn: default_pn,
-            default_bind: override_bind,
-            bind: override_bind,
-            fn: default_fn,
-            fn1: default_fn1,
-            pn: default_pn,
-        }, 
-        {
-            default_fn: default_fn,
-            default_fn1: default_fn1,
-            default_pn: default_pn,
-            default_bind: override_bind,
-            bind: override_bind,
-            fn: default_fn,
-            fn1: default_fn1,
-            pn: default_pn
-        }, 
-        {
-            default_fn: default_fn,
-            default_fn1: default_fn1,
-            default_pn: default_pn,
-            default_bind: override_bind,
-            bind: override_bind,
-            fn: default_fn,
-            fn1: default_fn1,
-            pn: default_pn
-        }, 
-        {
-            default_fn: default_fn,
-            default_fn1: default_fn1,
-            default_pn: default_pn,
-            default_bind: override_bind,
-            bind: override_bind,
-            fn: default_fn,
-            fn1: default_fn1,
-            pn: default_pn
-        }
-        ],
-        type: type
+Vue.directive( "sortable", function( value ) {
+    var that = this,
+        key = this.arg;
+  
+    value = value || {};
+    value.onUpdate = function( e ) {
+      var vm = that.vm,
+          array = vm[ key ],
+          target = array[ e.oldIndex ];
+      array.$remove( target );
+      array.splice( e.newIndex, 0, target );
+      vm.$emit( "sort", target, e.oldIndex, e.newIndex );
     };
-}
+  
+    Sortable.create(value, value );
+});
 
-function FK(keyCode=null, type="1x1") { // FullKeyboard Key 
-    return {code: keyCode, type: type};
-}
 
 // -----------------------
 //  Const declarations
@@ -338,12 +294,12 @@ const keyLegend = {
     '1C': 'Y',
     '1D': 'Z',
     '1E': '! 1',
-    '1F': '@ 2',
-    '20': '# 3',
-    '21': '$ 4',
-    '22': '% 5',
+    '1F': '\@ 2',
+    '20': '\# 3',
+    '21': '\$ 4',
+    '22': '\% 5',
     '23': '^ 6',
-    '24': '& 7',
+    '24': '\& 7',
     '25': '* 8',
     '26': '( 9',
     '27': ') 0',
@@ -358,7 +314,7 @@ const keyLegend = {
     '30': '} ]',
     '31': '| \\',
     '32': 'CODE42',     // ??
-    '33': ': ;',
+    '33': ': \;',
     '34': '\" \'',
     '35': '~ `',
     '36': '&lt ,',
@@ -701,6 +657,68 @@ const fullKeyboard = [
     ],
 ]
 
+// -----------------------
+//  Templates
+// -----------------------
+function Key(keyCode, fnktm, defaults = [], type = '1x1') {
+    var default_fn = !defaults[0] ? '0' : defaults[0]
+    var default_fn1 = !defaults[1] ? '0' : defaults[1]
+    var default_pn = !defaults[2] ? '0' : defaults[2]
+    var override_bind = !defaults[3] ? keyCode : defaults[3]
+    return {
+        code: keyCode,
+        locked: locked_keys.indexOf(override_bind) >= 0,
+        ktm: fnktm,
+        profiles: [
+        {
+            default_fn: default_fn,
+            default_fn1: default_fn1,
+            default_pn: default_pn,
+            default_bind: override_bind,
+            bind: override_bind,
+            fn: default_fn,
+            fn1: default_fn1,
+            pn: default_pn,
+        }, 
+        {
+            default_fn: default_fn,
+            default_fn1: default_fn1,
+            default_pn: default_pn,
+            default_bind: override_bind,
+            bind: override_bind,
+            fn: default_fn,
+            fn1: default_fn1,
+            pn: default_pn
+        }, 
+        {
+            default_fn: default_fn,
+            default_fn1: default_fn1,
+            default_pn: default_pn,
+            default_bind: override_bind,
+            bind: override_bind,
+            fn: default_fn,
+            fn1: default_fn1,
+            pn: default_pn
+        }, 
+        {
+            default_fn: default_fn,
+            default_fn1: default_fn1,
+            default_pn: default_pn,
+            default_bind: override_bind,
+            bind: override_bind,
+            fn: default_fn,
+            fn1: default_fn1,
+            pn: default_pn
+        }
+        ],
+        type: type
+    };
+}
+
+function FK(keyCode=null, type="1x1") { // FullKeyboard Key 
+    return {code: keyCode, type: type};
+}
+
 function defaultRows() {
     return [
         [
@@ -779,18 +797,38 @@ var app = new Vue({
     },
     data: {
         rows: null,
+        macros: [],
+
+        // states
         active_profile: 0,
         active_tab: 0,
         selected_key: null,
         binding_key: null,
         selected_key_layer: 0,
+        editing_macro: null,
+        editing_macro_index: null,
+        new_macro: false,
+        macro_next_id: 0,
+
+        // consts
+        locked_keys: locked_keys,
+        unbindable_keys: unbindable_keys,
+        unbindable_desc: unbindable_desc,
+        special_keys: special_keys,
+        ktmName: ktmName,
+        keyName: keyName,
+        keyLegend: keyLegend,
+        fullKeyboard: fullKeyboard,
+
+        // other
+        UIkit: UIkit,
     },
     computed: {
         ledClass: function () {
           return {
-            'led_red': this.active_profile == 1,
-            'led_green': this.active_profile == 2,
-            'led_blue': this.active_profile == 3,
+            'led-red': this.active_profile == 1,
+            'led-green': this.active_profile == 2,
+            'led-blue': this.active_profile == 3,
           }
         },
         currentKeyHasLayers: function () {
@@ -1011,6 +1049,40 @@ var app = new Vue({
         }
     },
     methods: {
+        newMacro: function () {
+            this.new_macro = true;
+            this.editing_macro = {
+                id: this.macro_next_id,
+                title: "Macro "+(this.macro_next_id+1),
+                events: [],
+            }
+            this.macro_next_id += 1;
+            UIkit.modal('#macro-modal', {bgClose: null}).show();
+        },
+        editMacro: function (index) {
+            this.new_macro = false;
+            this.editing_macro_index = index;
+            this.editing_macro = {title: this.macros[index].title, events: this.macros[index].events.concat([]) };
+            UIkit.modal('#macro-modal', {bgClose: null}).show();
+        },
+        saveMacro: function () {
+            console.log("hi");
+            if (this.new_macro) {
+                this.macros.push(this.editing_macro);
+                new_macro = false;
+            } else {
+                this.macros[this.editing_macro_index].title = this.editing_macro.title;
+                this.macros[this.editing_macro_index].events = this.editing_macro.events;
+            }
+            UIkit.modal('#macro-modal').hide();
+        },
+        removeMacro: function(){
+            this.macros.splice(this.editing_macro_index, 1);
+            UIkit.modal('#macro-modal').hide();
+        },
+        previewMacro: function(macro) {
+            return macro.events.filter(function(e) {return e.event==0;}).map(function(e){return e.code});
+        },
         bindKey: function (type) {
             this.selected_key_layer = type;
             switch (type) {
@@ -1027,7 +1099,7 @@ var app = new Vue({
                 this.binding_key = this.selected_key.profiles[this.active_profile].fn1;
                 break;
             }
-            UIkit.modal('#key-selector-modal', {bgClose: null}).show()
+            UIkit.modal('#key-selector-modal', {bgClose: null}).show();
         },
         confirmBind: function () {
             switch (this.selected_key_layer) {
@@ -1046,12 +1118,15 @@ var app = new Vue({
             }
             UIkit.modal('#key-selector-modal').hide()
         },
+        addMacro: function () {
+            UIkit.modal('#macro-modal', {bgClose: null}).show()
+        },
         generate: function (){
             try {
-                var blob = new Blob([convertToBytes(this.rowsToMPCData)], { type: "octet/stream" });
+                var blob = new Blob([this.convertToBytes(this.rowsToMPCData)], { type: "octet/stream" });
                 UIkit.notification('<i class="fas fa-download"></i> Layout file generated.', {pos: 'bottom-right',status:'success'}).$el.classList.add('uk-box-shadow-large');
                 saveAs(blob, 'layout.cys');
-            } catch {
+            } catch (err) {
                 UIkit.notification('<i class="fas fa-exclamation-circle"></i> Generation failed. Something is wrong on our part.', {pos: 'bottom-right',status:'danger'}).$el.classList.add('uk-box-shadow-large');
             }
 
@@ -1085,292 +1160,316 @@ var app = new Vue({
             UIkit.notification('<i class="fas fa-download"></i> Download started.', {pos: 'bottom-right',status:'success'}).$el.classList.add('uk-box-shadow-large');
             saveAs(blob, 'export.txt');
         },
+        setupEventList: function () {
+            var sortable = UIkit.sortable("#macro-list");
+            var _this = this;
+            if (!sortable || sortable.mpcSet) return;
+            UIkit.util.on('.uk-sortable', 'start', function(e) {
+                var index = null;
+                
+                e.target.childNodes.forEach(function (node, i) {
+                    if (node == e.detail[1]) {
+                        index = i;
+                    }
+                });
+                e.target.movingIndex = index;
+            });
+            UIkit.util.on('.uk-sortable', 'moved', function(e) {
+                var index = null;
+                
+                e.target.childNodes.forEach(function (node, i) {
+                    if (node == e.detail[1]) {
+                        index = i;
+                    }
+                });
+                _this.moveEvent(e.target.movingIndex, index);
+            });
+            sortable.mpcSet = true;
+        },
+        isUnbindable: function(keycode) {
+            return unbindable_keys.indexOf(keycode) >= 0;
+        },
+        unbindableDesc: function(keycode) {
+            return unbindable_desc[unbindable_keys.indexOf(keycode)];
+        },
+        isLocked: function(keycode) {
+            return locked_keys.indexOf(keycode) >= 0;
+        },
+        isSpecial: function(keycode) {
+            return special_keys.indexOf(keycode) >= 0;
+        },
+        rowsFromJSON: function(str) {
+            var importedJsonObj = JSON.parse(str);
+
+            if (!importedJsonObj["layout"]) {
+                throw "invalid";
+            }
+
+            var result = importedJsonObj["layout"];
+            return result;
+        },
+        copyObj: function(src) {
+            let target = {};
+            for (let prop in src) {
+            if (src.hasOwnProperty(prop)) {
+                target[prop] = src[prop];
+            }
+            }
+            return target;
+        },
+        numberTo2Bytes: function(num) {
+            var bytes = [0, 0];
+            for (var i = 0; i < bytes.length; i++) {
+                var byte = num & 0xff;
+                bytes[i] = byte;
+                num = (num - byte) / 0x100;
+            }
+            return bytes;
+        },
+        numberTo4Bytes: function(num) {
+            var bytes = [0, 0, 0, 0];
+            for (var i = 0; i < bytes.length; i++) {
+                var byte = num & 0xff;
+                bytes[i] = byte;
+                num = (num - byte) / 0x100;
+            }
+            return bytes;
+        },
+        this.stringToBytes: function(str) {
+            var binaryLen = str.length;
+            var bytes = [];
+            for (var i = 0; i < binaryLen; i++) {
+                var ascii = str.charCodeAt(i);
+                bytes[i] = ascii;
+            }
+            return bytes;
+        },
+        isLocal: function(){
+            return window.location.protocol == "file:"
+        },
+        convertToBytes: function (mpcData) {
+            var profileCount = 4;
+            var itemSize = mpcData.macro.length * 2 + mpcData.keyChange.length + mpcData.functionSet.length;
+            var cysHeader = {
+                title: stringToBytes('CYFI'),
+                rev: numberTo2Bytes(0),
+                itemSize: numberTo2Bytes(itemSize)
+            };
+            var cysItem = [];
+            var cysProfile = [];
+            var cysMacro = [];
+            var macroIndex = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            var profilePos = 8 + itemSize * 8;
+            var generateForProfile = function (filterIndex) {
+                //function set
+                var filterFunctionSet = mpcData.functionSet.filter(function (row) {
+                    return parseInt(row.profileIndex) === filterIndex;
+                });
+                filterFunctionSet.forEach(function (row, idx) {
+                    var profile = {
+                        pos: profilePos,
+                        len: [2],
+                        key: { FN: 0x94, FN1: 0x95, PN: 0x96, FN3: 0x97 }[row.key],
+                        index: numberTo2Bytes(row.ktm.length),
+                        data: row.ktm
+                    };
+                    var profileLength = 8;
+                    if (profilePos % 0x1000 + profileLength > 0x1000) {
+                        profilePos = Math.ceil(profilePos / 0x1000) * 0x1000;
+                        profile.pos = profilePos;
+                    }
+                    cysProfile.push(profile);
+                    cysItem.push({
+                        type: [0],
+                        profileIndex: [parseInt(row.profileIndex)],
+                        macroIndex: numberTo2Bytes(0),
+                        itemDataShift: numberTo4Bytes(profilePos)
+                    });
+                    profilePos += profileLength;
+                });
+                //key change
+                var filterKeyChange = mpcData.keyChange.filter(function (row) {
+                    return parseInt(row.profileIndex) === filterIndex;
+                });
+                filterKeyChange.forEach(function (row, idx) {
+                    var profileIndex = [];
+                    profileIndex.push(parseInt(row.sourceKey, 16));
+                    if (row.sourceLayer == 'FN') {
+                        profileIndex.push(1);
+                    }
+                    else if (row.sourceLayer == 'FN1') {
+                        profileIndex.push(2);
+                    }
+                    else if (row.sourceLayer == 'PN') {
+                        profileIndex.push(3);
+                    }
+                    else {
+                        profileIndex.push(0);
+                    }
+                    var profileData = [];
+                    profileData.push(parseInt(row.targetKey, 16));
+                    if (row.targetLayer == 'FN') {
+                        profileData.push(1);
+                    }
+                    else if (row.targetLayer == 'FN1') {
+                        profileData.push(2);
+                    }
+                    else if (row.targetLayer == 'PN') {
+                        profileData.push(3);
+                    }
+                    else {
+                        profileData.push(0);
+                    }
+                    var profile = {
+                        pos: profilePos,
+                        len: [2],
+                        key: [0x20],
+                        index: profileIndex,
+                        data: profileData.concat(numberTo2Bytes(0))
+                    };
+                    var profileLength = 8;
+                    if (profilePos % 0x1000 + profileLength > 0x1000) {
+                        profilePos = Math.ceil(profilePos / 0x1000) * 0x1000;
+                        profile.pos = profilePos;
+                    }
+                    cysProfile.push(profile);
+                    cysItem.push({
+                        type: [0],
+                        profileIndex: [parseInt(row.profileIndex)],
+                        macroIndex: numberTo2Bytes(0),
+                        itemDataShift: numberTo4Bytes(profilePos)
+                    });
+                    profilePos += profileLength;
+                });
+                //macro
+                var filterMacro = mpcData.macro.filter(function (row) {
+                    return parseInt(row.profileIndex) === filterIndex;
+                });
+                var macroPos = profilePos + filterMacro.length * 8 + 4;
+                filterMacro.forEach(function (row, idx) {
+                    var profileData = parseInt(row.macroType).toString(2) + '111';
+                    if (row.sourceLayer == 'FN') {
+                        profileData += '01';
+                    }
+                    else if (row.sourceLayer == 'FN1') {
+                        profileData += '10';
+                    }
+                    else if (row.sourceLayer == 'PN') {
+                        profileData += '11';
+                    }
+                    else {
+                        profileData += '00';
+                    }
+                    var profile = {
+                        pos: profilePos,
+                        len: [2],
+                        key: [0x18],
+                        index: numberTo2Bytes(macroIndex[row.profileIndex]),
+                        data: [parseInt(row.sourceKey, 16), parseInt(profileData, 2)].concat(numberTo2Bytes(parseInt(row.macroRepeat)))
+                    };
+                    var profileLength = 8;
+                    if (profilePos % 0x1000 + profileLength > 0x1000) {
+                        profilePos = Math.ceil(profilePos / 0x1000) * 0x1000;
+                        profile.pos = profilePos;
+                    }
+                    cysProfile.push(profile);
+                    cysItem.push({
+                        type: [0],
+                        profileIndex: [parseInt(row.profileIndex)],
+                        macroIndex: numberTo2Bytes(0),
+                        itemDataShift: numberTo4Bytes(profilePos)
+                    });
+                    profilePos += profileLength;
+                    var macro = {
+                        pos: macroPos,
+                        macro: []
+                    };
+                    row.macro.forEach(function (item, idx) {
+                        var macroData = '';
+                        if (item.event == '1') {
+                            macroData += '001';
+                        }
+                        else {
+                            macroData += '010';
+                        }
+                        macroData += '111';
+                        if (item.layer == 'FN') {
+                            macroData += '01';
+                        }
+                        else if (item.layer == 'FN1') {
+                            macroData += '10';
+                        }
+                        else if (item.layer == 'PN') {
+                            macroData += '11';
+                        }
+                        else {
+                            macroData += '00';
+                        }
+                        var timer = parseInt(item.timer);
+                        var macroTimer = [];
+                        if (timer < 16383) {
+                            macroTimer = numberTo2Bytes(timer / 0.5 - 1);
+                        }
+                        else {
+                            macroTimer = numberTo2Bytes(Math.floor(timer / 512) - 1 + 32768);
+                        }
+                        macro.macro = macro.macro.concat([parseInt(item.key, 16), parseInt(macroData, 2)]).concat(macroTimer);
+                    });
+                    macro.macro = macro.macro.concat([0, 0xFC, 0, 0]);
+                    var macroLength = macro.macro.length;
+                    if (macroPos % 0x1000 + macroLength > 0x1000) {
+                        macroPos = Math.ceil(macroPos / 0x1000) * 0x1000;
+                        macro.pos = macroPos;
+                    }
+                    cysMacro.push(macro);
+                    cysItem.push({
+                        type: [1],
+                        profileIndex: [parseInt(row.profileIndex)],
+                        macroIndex: numberTo2Bytes(macroIndex[row.profileIndex]),
+                        itemDataShift: numberTo4Bytes(macroPos)
+                    });
+                    macroPos += macroLength;
+                    macroIndex[row.profileIndex]++;
+                });
+                profilePos = macroPos + 8;
+            };
+            // Mod: check range [0, profileCount)
+            for (var filterIndex = 0; filterIndex < profileCount; filterIndex++) {
+                generateForProfile(filterIndex);
+            }
+            var bytes = [];
+            bytes = bytes.concat(cysHeader.title, cysHeader.rev, cysHeader.itemSize);
+            cysItem.forEach(function (item, idx) {
+                bytes = bytes.concat(item.type, item.profileIndex, item.macroIndex, item.itemDataShift);
+            });
+            while (bytes.length < profilePos) {
+                bytes.push(0);
+            }
+            cysProfile.forEach(function (profile, idx) {
+                var newData = [];
+                newData = newData.concat(profile.len, profile.key, profile.index, profile.data);
+                for (var pos = 0; pos < newData.length; pos++) {
+                    bytes[profile.pos + pos] = newData[pos];
+                }
+            });
+            cysMacro.forEach(function (macro, idx) {
+                var newData = [];
+                newData = newData.concat(macro.macro);
+                for (var pos = 0; pos < newData.length; pos++) {
+                    bytes[macro.pos + pos] = newData[pos];
+                }
+            });
+            while (bytes.length < 8192) {
+                bytes.push(255);
+            }
+            return new Uint8Array(bytes);
+        },
+        Event: function(code, mode) {
+            return {
+                code: code,
+                event: mode,
+                timer: 10,
+            }
+        }
     }
 });
-
-// -----------------------
-//  Static helper functions
-// -----------------------
-function isUnbindable(keycode) {
-    return unbindable_keys.indexOf(keycode) >= 0;
-}
-
-function UnbindableDesc(keycode) {
-    return unbindable_desc[unbindable_keys.indexOf(keycode)];
-}
-
-function isLocked(keycode) {
-    return locked_keys.indexOf(keycode) >= 0;
-}
-
-function isSpecial(keycode) {
-    return special_keys.indexOf(keycode) >= 0;
-}
-
-function rowsFromJSON(str) {
-    var importedJsonObj = JSON.parse(str);
-
-    if (!importedJsonObj["layout"]) {
-        throw "invalid";
-    }
-
-    var result = importedJsonObj["layout"];
-    return result;
-
-}
-
-// -----------------------
-//  Helper functions Grabbed from offical MPC
-// -----------------------
-function numberTo2Bytes(num) {
-    var bytes = [0, 0];
-    for (var i = 0; i < bytes.length; i++) {
-        var byte = num & 0xff;
-        bytes[i] = byte;
-        num = (num - byte) / 0x100;
-    }
-    return bytes;
-}
-
-function numberTo4Bytes(num) {
-    var bytes = [0, 0, 0, 0];
-    for (var i = 0; i < bytes.length; i++) {
-        var byte = num & 0xff;
-        bytes[i] = byte;
-        num = (num - byte) / 0x100;
-    }
-    return bytes;
-}
-
-function stringToBytes(str) {
-    var binaryLen = str.length;
-    var bytes = [];
-    for (var i = 0; i < binaryLen; i++) {
-        var ascii = str.charCodeAt(i);
-        bytes[i] = ascii;
-    }
-    return bytes;
-}
-
-function isLocal(){
-    return window.location.protocol == "file:"
-}
-
-
-function convertToBytes(mpcData) {
-    var profileCount = 4;
-    var itemSize = mpcData.macro.length * 2 + mpcData.keyChange.length + mpcData.functionSet.length;
-    var cysHeader = {
-        title: stringToBytes('CYFI'),
-        rev: numberTo2Bytes(0),
-        itemSize: numberTo2Bytes(itemSize)
-    };
-    var cysItem = [];
-    var cysProfile = [];
-    var cysMacro = [];
-    var macroIndex = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-    var profilePos = 8 + itemSize * 8;
-    var generateForProfile = function (filterIndex) {
-        //function set
-        var filterFunctionSet = mpcData.functionSet.filter(function (row) {
-            return parseInt(row.profileIndex) === filterIndex;
-        });
-        filterFunctionSet.forEach(function (row, idx) {
-            var profile = {
-                pos: profilePos,
-                len: [2],
-                key: { FN: 0x94, FN1: 0x95, PN: 0x96, FN3: 0x97 }[row.key],
-                index: numberTo2Bytes(row.ktm.length),
-                data: row.ktm
-            };
-            var profileLength = 8;
-            if (profilePos % 0x1000 + profileLength > 0x1000) {
-                profilePos = Math.ceil(profilePos / 0x1000) * 0x1000;
-                profile.pos = profilePos;
-            }
-            cysProfile.push(profile);
-            cysItem.push({
-                type: [0],
-                profileIndex: [parseInt(row.profileIndex)],
-                macroIndex: numberTo2Bytes(0),
-                itemDataShift: numberTo4Bytes(profilePos)
-            });
-            profilePos += profileLength;
-        });
-        //key change
-        var filterKeyChange = mpcData.keyChange.filter(function (row) {
-            return parseInt(row.profileIndex) === filterIndex;
-        });
-        filterKeyChange.forEach(function (row, idx) {
-            var profileIndex = [];
-            profileIndex.push(parseInt(row.sourceKey, 16));
-            if (row.sourceLayer == 'FN') {
-                profileIndex.push(1);
-            }
-            else if (row.sourceLayer == 'FN1') {
-                profileIndex.push(2);
-            }
-            else if (row.sourceLayer == 'PN') {
-                profileIndex.push(3);
-            }
-            else {
-                profileIndex.push(0);
-            }
-            var profileData = [];
-            profileData.push(parseInt(row.targetKey, 16));
-            if (row.targetLayer == 'FN') {
-                profileData.push(1);
-            }
-            else if (row.targetLayer == 'FN1') {
-                profileData.push(2);
-            }
-            else if (row.targetLayer == 'PN') {
-                profileData.push(3);
-            }
-            else {
-                profileData.push(0);
-            }
-            var profile = {
-                pos: profilePos,
-                len: [2],
-                key: [0x20],
-                index: profileIndex,
-                data: profileData.concat(numberTo2Bytes(0))
-            };
-            var profileLength = 8;
-            if (profilePos % 0x1000 + profileLength > 0x1000) {
-                profilePos = Math.ceil(profilePos / 0x1000) * 0x1000;
-                profile.pos = profilePos;
-            }
-            cysProfile.push(profile);
-            cysItem.push({
-                type: [0],
-                profileIndex: [parseInt(row.profileIndex)],
-                macroIndex: numberTo2Bytes(0),
-                itemDataShift: numberTo4Bytes(profilePos)
-            });
-            profilePos += profileLength;
-        });
-        //macro
-        var filterMacro = mpcData.macro.filter(function (row) {
-            return parseInt(row.profileIndex) === filterIndex;
-        });
-        var macroPos = profilePos + filterMacro.length * 8 + 4;
-        filterMacro.forEach(function (row, idx) {
-            var profileData = parseInt(row.macroType).toString(2) + '111';
-            if (row.sourceLayer == 'FN') {
-                profileData += '01';
-            }
-            else if (row.sourceLayer == 'FN1') {
-                profileData += '10';
-            }
-            else if (row.sourceLayer == 'PN') {
-                profileData += '11';
-            }
-            else {
-                profileData += '00';
-            }
-            var profile = {
-                pos: profilePos,
-                len: [2],
-                key: [0x18],
-                index: numberTo2Bytes(macroIndex[row.profileIndex]),
-                data: [parseInt(row.sourceKey, 16), parseInt(profileData, 2)].concat(numberTo2Bytes(parseInt(row.macroRepeat)))
-            };
-            var profileLength = 8;
-            if (profilePos % 0x1000 + profileLength > 0x1000) {
-                profilePos = Math.ceil(profilePos / 0x1000) * 0x1000;
-                profile.pos = profilePos;
-            }
-            cysProfile.push(profile);
-            cysItem.push({
-                type: [0],
-                profileIndex: [parseInt(row.profileIndex)],
-                macroIndex: numberTo2Bytes(0),
-                itemDataShift: numberTo4Bytes(profilePos)
-            });
-            profilePos += profileLength;
-            var macro = {
-                pos: macroPos,
-                macro: []
-            };
-            row.macro.forEach(function (item, idx) {
-                var macroData = '';
-                if (item.event == '1') {
-                    macroData += '001';
-                }
-                else {
-                    macroData += '010';
-                }
-                macroData += '111';
-                if (item.layer == 'FN') {
-                    macroData += '01';
-                }
-                else if (item.layer == 'FN1') {
-                    macroData += '10';
-                }
-                else if (item.layer == 'PN') {
-                    macroData += '11';
-                }
-                else {
-                    macroData += '00';
-                }
-                var timer = parseInt(item.timer);
-                var macroTimer = [];
-                if (timer < 16383) {
-                    macroTimer = numberTo2Bytes(timer / 0.5 - 1);
-                }
-                else {
-                    macroTimer = numberTo2Bytes(Math.floor(timer / 512) - 1 + 32768);
-                }
-                macro.macro = macro.macro.concat([parseInt(item.key, 16), parseInt(macroData, 2)]).concat(macroTimer);
-            });
-            macro.macro = macro.macro.concat([0, 0xFC, 0, 0]);
-            var macroLength = macro.macro.length;
-            if (macroPos % 0x1000 + macroLength > 0x1000) {
-                macroPos = Math.ceil(macroPos / 0x1000) * 0x1000;
-                macro.pos = macroPos;
-            }
-            cysMacro.push(macro);
-            cysItem.push({
-                type: [1],
-                profileIndex: [parseInt(row.profileIndex)],
-                macroIndex: numberTo2Bytes(macroIndex[row.profileIndex]),
-                itemDataShift: numberTo4Bytes(macroPos)
-            });
-            macroPos += macroLength;
-            macroIndex[row.profileIndex]++;
-        });
-        profilePos = macroPos + 8;
-    };
-    // Mod: check range [0, profileCount)
-    for (var filterIndex = 0; filterIndex < profileCount; filterIndex++) {
-        generateForProfile(filterIndex);
-    }
-    var bytes = [];
-    bytes = bytes.concat(cysHeader.title, cysHeader.rev, cysHeader.itemSize);
-    cysItem.forEach(function (item, idx) {
-        bytes = bytes.concat(item.type, item.profileIndex, item.macroIndex, item.itemDataShift);
-    });
-    while (bytes.length < profilePos) {
-        bytes.push(0);
-    }
-    cysProfile.forEach(function (profile, idx) {
-        var newData = [];
-        newData = newData.concat(profile.len, profile.key, profile.index, profile.data);
-        for (var pos = 0; pos < newData.length; pos++) {
-            bytes[profile.pos + pos] = newData[pos];
-        }
-    });
-    cysMacro.forEach(function (macro, idx) {
-        var newData = [];
-        newData = newData.concat(macro.macro);
-        for (var pos = 0; pos < newData.length; pos++) {
-            bytes[macro.pos + pos] = newData[pos];
-        }
-    });
-    while (bytes.length < 8192) {
-        bytes.push(255);
-    }
-    return new Uint8Array(bytes);
-}

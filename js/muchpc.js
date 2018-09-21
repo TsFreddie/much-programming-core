@@ -1063,10 +1063,10 @@ var app = new Vue({
                                 bind_macro.events.forEach(function(e, index) {
                                     if (special_keys[e.code]) {
                                         events.push({
-                                            key: special_keys[bind_code].targetKey,
+                                            key: special_keys[e.code].targetKey,
                                             event: e.event,
                                             timer: e.timer,
-                                            layer: special_keys[bind_code].targetLayer,
+                                            layer: special_keys[e.code].targetLayer,
                                         });
                                     } else {
                                         events.push({

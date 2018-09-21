@@ -299,7 +299,7 @@
             <div v-if="selected_key" class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
                 <div v-if="isUnbindable(currentKeyDefault) && currentKeyDefault == currentKeyBind" class="uk-alert-primary"
                     uk-alert>
-                    If you change this key, it will lose the ability to {{ UnbindableDesc(currentKeyDefault) }}.
+                    If you change this key, it will lose the ability to {{ unbindableDesc(currentKeyDefault) }}.
                 </div>
                 <div v-if="binding_key=='FN' || binding_key=='FN1' || binding_key=='PN'" class="uk-alert-primary"
                     uk-alert>
@@ -351,16 +351,15 @@
                 </div>
                 <div class="uk-margin">
                     <button class="uk-button uk-button-primary" @click="confirmBind()">Confirm</button>
+                    <button class="uk-button uk-button-secondary" :disabled="binding_key==currentKeyDefault" @click="binding_key=currentKeyDefault">Default</button>
                     <button class="uk-button uk-button-default uk-modal-close">Cancel</button>
-                    <div class="uk-align-right">
-                            <button class="uk-button uk-button-secondary" :disabled="binding_key==currentKeyDefault" @click="binding_key=currentKeyDefault">Default</button>
-                    </div>
-                </div>
-                <div v-if="isUnbindable(currentKeyDefault)" class="uk-align-right key-border key small fk-1x1" :class="{selected: binding_key == currentKeyDefault}"
-                    @click="binding_key = currentKeyDefault;" uk-tooltip="There's no keycode of this function. However you can use this key to restore its original function.">
-                    <div class="key-container">
-                        <div class="key-legend-main">
-                            <span v-html="keyLegend[currentKeyDefault]"></span>
+                    
+                    <div v-if="isUnbindable(currentKeyDefault)" class="uk-align-right key-border key small fk-1x1" :class="{selected: binding_key == currentKeyDefault}"
+                        @click="binding_key = currentKeyDefault;" uk-tooltip="There's no keycode of this function. However you can use this key to restore its original function.">
+                        <div class="key-container">
+                            <div class="key-legend-main">
+                                <span v-html="keyLegend[currentKeyDefault]"></span>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -260,6 +260,7 @@ const keyName = {
     'L1': 'SWITCH TO L1',
     'L2': 'SWITCH TO L2',
     'L3': 'SWITCH TO L3',
+    'Macro': 'MACRO',
 };
 
 const keyLegend = {
@@ -483,6 +484,7 @@ const keyLegend = {
     'L1': 'L1',
     'L2': 'L2',
     'L3': 'L3',
+    'Macro': '<i class="fas fa-keyboard"></i>',
 };
 
 const fullKeyboard = [
@@ -679,6 +681,10 @@ function Key(keyCode, fnktm, defaults = [], type = '1x1') {
             fn: default_fn,
             fn1: default_fn1,
             pn: default_pn,
+            bind_macro: -1,
+            fn_macro: -1,
+            fn1_macro: -1,
+            pn_macro: -1,
         }, 
         {
             default_fn: default_fn,
@@ -688,7 +694,11 @@ function Key(keyCode, fnktm, defaults = [], type = '1x1') {
             bind: override_bind,
             fn: default_fn,
             fn1: default_fn1,
-            pn: default_pn
+            pn: default_pn,
+            bind_macro: -1,
+            fn_macro: -1,
+            fn1_macro: -1,
+            pn_macro: -1,
         }, 
         {
             default_fn: default_fn,
@@ -698,7 +708,11 @@ function Key(keyCode, fnktm, defaults = [], type = '1x1') {
             bind: override_bind,
             fn: default_fn,
             fn1: default_fn1,
-            pn: default_pn
+            pn: default_pn,
+            bind_macro: -1,
+            fn_macro: -1,
+            fn1_macro: -1,
+            pn_macro: -1,
         }, 
         {
             default_fn: default_fn,
@@ -708,7 +722,11 @@ function Key(keyCode, fnktm, defaults = [], type = '1x1') {
             bind: override_bind,
             fn: default_fn,
             fn1: default_fn1,
-            pn: default_pn
+            pn: default_pn,
+            bind_macro: -1,
+            fn_macro: -1,
+            fn1_macro: -1,
+            pn_macro: -1,
         }
         ],
         type: type
@@ -804,11 +822,13 @@ var app = new Vue({
         active_tab: 0,
         selected_key: null,
         binding_key: null,
+        binding_macro: -1,
         selected_key_layer: 0,
         editing_macro: null,
         editing_macro_index: null,
         new_macro: false,
         macro_next_id: 0,
+        default_timer: 10,
 
         // consts
         locked_keys: locked_keys,
@@ -822,6 +842,7 @@ var app = new Vue({
 
         // other
         UIkit: UIkit,
+        fileListener: null,
     },
     computed: {
         ledClass: function () {
@@ -1010,8 +1031,9 @@ var app = new Vue({
                             }
                         }
                         else {
-                            // Key Change
-                            // helper
+                            // Key Change & macros
+
+                            // helpers
                             var addToKeyChange = function (key_code, bind_code, default_code, layer) {
                                 if (unbindable_keys.indexOf(bind_code) < 0 && bind_code != default_code) {
                                     if (special_keys[bind_code]) {
@@ -1033,36 +1055,103 @@ var app = new Vue({
                                     }
                                 }
                             }
-                            // main layer 
-                            addToKeyChange(key.code, profile.bind, key.code, "INIT");
+
+                            var addToMacros = function (macros, key_code, macro_id, layer) {
+                                var bind_macro = macros.filter(function(m){return m.id == macro_id})[0];
+                                if (!bind_macro) return;
+                                var events = [];
+                                bind_macro.events.forEach(function(e, index) {
+                                    if (special_keys[e.code]) {
+                                        events.push({
+                                            key: special_keys[bind_code].targetKey,
+                                            event: e.event,
+                                            timer: e.timer,
+                                            layer: special_keys[bind_code].targetLayer,
+                                        });
+                                    } else {
+                                        events.push({
+                                            key: e.code,
+                                            event: e.event,
+                                            timer: e.timer,
+                                            layer: 'INIT',
+                                        });
+                                    }
+                                })
+                                data.macro.push({
+                                    macro: events,
+                                    macroRepeat: bind_macro.repeats,
+                                    macroType: bind_macro.type,
+                                    profileIndex: i,
+                                    sourceKey: key_code,
+                                    sourceLayer: layer,
+                                });
+                            }
+
+                            // main layer
+                            if (profile.bind == "Macro") addToMacros(this.macros, key.code, profile.bind_macro, "INIT");
+                            else addToKeyChange(key.code, profile.bind, key.code, "INIT");
                             // pn layer
-                            addToKeyChange(key.code, profile.pn, profile.default_pn, "PN");
+                            if (profile.pn == "Macro") addToMacros(this.macros, key.code, profile.pn_macro, "PN");
+                            else addToKeyChange(key.code, profile.pn, profile.default_pn, "PN");
                             // fn layer
-                            addToKeyChange(key.code, profile.fn, profile.default_fn, "FN");
+                            if (profile.fn == "Macro") addToMacros(this.macros, key.code, profile.fn_macro, "FN");
+                            else addToKeyChange(key.code, profile.fn, profile.default_fn, "FN");
                             // fn1 layer
-                            addToKeyChange(key.code, profile.fn1, profile.default_fn1, "FN1");
+                            if (profile.fn1 == "Macro") addToMacros(this.macros, key.code, profile.fn1_macro, "FN1");
+                            else addToKeyChange(key.code, profile.fn1, profile.default_fn1, "FN1");
                         }
                     }
                 }
             }
             return data;
-        }
+        },
     },
     methods: {
+        openFile: function (callback) {
+            var inputFile = document.getElementById("importFile");
+            if (this.fileListener) {
+                inputFile.removeEventListener('change', this.fileListener);
+            }
+            this.fileListener = function(t) { callback(t.target.files); }
+            inputFile.addEventListener('change', this.fileListener);
+            if(inputFile && document.createEvent) {
+                var evt = document.createEvent("MouseEvents");
+                evt.initEvent("click", true, false);
+                inputFile.dispatchEvent(evt);
+            }
+        },
+        setTimer: function (event, e) {
+            event.timer = parseInt(e.target.value);
+            event.timer = (event.timer == NaN) ? 10 : Math.min(Math.max(event.timer, 1), 16777216);
+            this.default_timer = event.timer;
+        },
+        setRepeats: function (e) {
+            this.editing_macro.repeats = parseInt(e.target.value);
+            this.editing_macro.repeats = (this.editing_macro.repeats == NaN) ? 10 : Math.min(Math.max(this.editing_macro.repeats, 2), 510);
+        },
         newMacro: function () {
             this.new_macro = true;
+            this.default_timer = 10;
             this.editing_macro = {
                 id: this.macro_next_id,
                 title: "Macro "+(this.macro_next_id+1),
                 events: [],
+                repeats: 2,
+                type: 1,
             }
             this.macro_next_id += 1;
             UIkit.modal('#macro-modal', {bgClose: null}).show();
         },
         editMacro: function (index) {
             this.new_macro = false;
+            this.default_timer = 10;
             this.editing_macro_index = index;
-            this.editing_macro = {title: this.macros[index].title, events: this.macros[index].events.concat([]) };
+            this.editing_macro = {
+                title: this.macros[index].title, 
+                events: this.macros[index].events.concat([]),
+                repeats: this.macros[index].repeats,
+                type: this.macros[index].type
+            };
             UIkit.modal('#macro-modal', {bgClose: null}).show();
         },
         saveMacro: function () {
@@ -1071,6 +1160,8 @@ var app = new Vue({
                 this.macros.push(this.editing_macro);
                 new_macro = false;
             } else {
+                this.macros[this.editing_macro_index].repeats = this.editing_macro.repeats;
+                this.macros[this.editing_macro_index].type = this.editing_macro.type;
                 this.macros[this.editing_macro_index].title = this.editing_macro.title;
                 this.macros[this.editing_macro_index].events = this.editing_macro.events;
             }
@@ -1078,42 +1169,67 @@ var app = new Vue({
         },
         removeMacro: function(){
             this.macros.splice(this.editing_macro_index, 1);
+            // Unbind macro keys
+            this.rows.map(function(row){row.map(function(k){k.profiles.map(function(key) {
+                if (key.bind == 'Macro') {
+                    key.bind = '0';
+                }
+                if (key.fn == 'Macro') {
+                    key.fn = '0';
+                }
+                if (key.fn1 == 'Macro') {
+                    key.fn1 = '0';
+                }
+                if (key.pn == 'Macro') {
+                    key.pn = '0';
+                }
+            })})});
             UIkit.modal('#macro-modal').hide();
         },
         previewMacro: function(macro) {
             return macro.events.filter(function(e) {return e.event==0;}).map(function(e){return e.code});
         },
         bindKey: function (type) {
+            var profile = this.selected_key.profiles[this.active_profile];
             this.selected_key_layer = type;
             switch (type) {
                 case 0:
-                this.binding_key = this.selected_key.profiles[this.active_profile].bind;
+                this.binding_key = profile.bind;
+                this.binding_macro = profile.bind_macro;
                 break;
                 case 1:
-                this.binding_key = this.selected_key.profiles[this.active_profile].pn;
+                this.binding_key = profile.pn;
+                this.binding_macro = profile.bind_pn;
                 break;
                 case 2:
-                this.binding_key = this.selected_key.profiles[this.active_profile].fn;
+                this.binding_key = profile.fn;
+                this.binding_macro = profile.bind_fn;
                 break;
                 case 3:
-                this.binding_key = this.selected_key.profiles[this.active_profile].fn1;
+                this.binding_key = profile.fn1;
+                this.binding_macro = profile.bind_fn1;
                 break;
             }
             UIkit.modal('#key-selector-modal', {bgClose: null}).show();
         },
         confirmBind: function () {
+            var profile = this.selected_key.profiles[this.active_profile];
             switch (this.selected_key_layer) {
                 case 0:
-                this.selected_key.profiles[this.active_profile].bind = this.binding_key;
+                profile.bind = this.binding_key;
+                profile.bind_macro = (this.binding_key == "Macro") ? this.binding_macro : -1;
                 break;
                 case 1:
-                this.selected_key.profiles[this.active_profile].pn = this.binding_key;
+                profile.pn = this.binding_key;
+                profile.pn_macro = (this.binding_key == "Macro") ? this.binding_macro : -1;
                 break;
                 case 2:
-                this.selected_key.profiles[this.active_profile].fn = this.binding_key;
+                profile.fn = this.binding_key;
+                profile.fn_macro = (this.binding_key == "Macro") ? this.binding_macro : -1;
                 break;
                 case 3:
-                this.selected_key.profiles[this.active_profile].fn1 = this.binding_key;
+                profile.fn1 = this.binding_key;
+                profile.fn1_macro = (this.binding_key == "Macro") ? this.binding_macro : -1;
                 break;
             }
             UIkit.modal('#key-selector-modal').hide()
@@ -1127,24 +1243,64 @@ var app = new Vue({
                 UIkit.notification('<i class="fas fa-download"></i> Layout file generated.', {pos: 'bottom-right',status:'success'}).$el.classList.add('uk-box-shadow-large');
                 saveAs(blob, 'layout.cys');
             } catch (err) {
+                console.error(err);
                 UIkit.notification('<i class="fas fa-exclamation-circle"></i> Generation failed. Something is wrong on our part.', {pos: 'bottom-right',status:'danger'}).$el.classList.add('uk-box-shadow-large');
             }
 
         },
-        importFile: function (file) {
+        importMacros: function (file) {
             var reader = new FileReader();
             var _this = this;
             reader.onload = function(e) {
                 try {
-                    _this.rows = rowsFromJSON(reader.result);
-                    UIkit.notification('<i class="fas fa-check"></i> Layout file opened.', {pos: 'bottom-right',status:'success'}).$el.classList.add('uk-box-shadow-large');
+                    var obj = JSON.parse(reader.result);
+
+                    if (obj.macros && obj.macros.length > 0) {
+                        obj.macros.forEach(function(macro, index) {
+                            macro.id = _this.macro_next_id;
+                            _this.macros.push(macro);
+                            _this.macro_next_id += 1;
+                        });
+                        UIkit.notification('<i class="fas fa-check"></i> Macros imported.', {pos: 'bottom-right',status:'success'}).$el.classList.add('uk-box-shadow-large');
+                    } else {
+                        UIkit.notification('<i class="fas fa-check"></i> Layout file contains no macro.', {pos: 'bottom-right',status:'warning'}).$el.classList.add('uk-box-shadow-large');
+                    }
                 } catch (err) {
+                    console.error(err);
                     UIkit.notification('<i class="fas fa-exclamation-circle"></i> Failed to open.', {pos: 'bottom-right',status:'danger'}).$el.classList.add('uk-box-shadow-large');
                 }   
             }
             try {
                 reader.readAsText(file[0]);
             } catch (err) {
+                console.error(err);
+                UIkit.notification('<i class="fas fa-exclamation-circle"></i> Can not open this file.', {pos: 'bottom-right',status:'warning'}).$el.classList.add('uk-box-shadow-large');
+            }
+        },
+        importFile: function (file) {
+            var reader = new FileReader();
+            var _this = this;
+            reader.onload = function(e) {
+                try {
+                    var obj = JSON.parse(reader.result);
+                    if (!obj.layout) {
+                        throw "no layout";
+                    }
+                    if (obj.macros && obj.macros.length > 0) {
+                        _this.macros = obj.macros;
+                        _this.macro_next_id = obj.macros[obj.macros.length-1].id + 1;
+                    }
+                    _this.rows = obj.layout;
+                    UIkit.notification('<i class="fas fa-check"></i> Layout file opened.', {pos: 'bottom-right',status:'success'}).$el.classList.add('uk-box-shadow-large');
+                } catch (err) {
+                    console.error(err);
+                    UIkit.notification('<i class="fas fa-exclamation-circle"></i> Failed to open.', {pos: 'bottom-right',status:'danger'}).$el.classList.add('uk-box-shadow-large');
+                }   
+            }
+            try {
+                reader.readAsText(file[0]);
+            } catch (err) {
+                console.error(err);
                 UIkit.notification('<i class="fas fa-exclamation-circle"></i> Can not open this file.', {pos: 'bottom-right',status:'warning'}).$el.classList.add('uk-box-shadow-large');
             }
         },
@@ -1153,6 +1309,7 @@ var app = new Vue({
             var toFile = function () {
                 var exportData = {
                     layout: _this.rows,
+                    macros: _this.macros,
                 };
                 return JSON.stringify(exportData);
             }
@@ -1198,16 +1355,6 @@ var app = new Vue({
         isSpecial: function(keycode) {
             return special_keys.indexOf(keycode) >= 0;
         },
-        rowsFromJSON: function(str) {
-            var importedJsonObj = JSON.parse(str);
-
-            if (!importedJsonObj["layout"]) {
-                throw "invalid";
-            }
-
-            var result = importedJsonObj["layout"];
-            return result;
-        },
         copyObj: function(src) {
             let target = {};
             for (let prop in src) {
@@ -1235,7 +1382,7 @@ var app = new Vue({
             }
             return bytes;
         },
-        this.stringToBytes: function(str) {
+        stringToBytes: function(str) {
             var binaryLen = str.length;
             var bytes = [];
             for (var i = 0; i < binaryLen; i++) {
@@ -1248,12 +1395,13 @@ var app = new Vue({
             return window.location.protocol == "file:"
         },
         convertToBytes: function (mpcData) {
+            var _this = this;
             var profileCount = 4;
             var itemSize = mpcData.macro.length * 2 + mpcData.keyChange.length + mpcData.functionSet.length;
             var cysHeader = {
-                title: stringToBytes('CYFI'),
-                rev: numberTo2Bytes(0),
-                itemSize: numberTo2Bytes(itemSize)
+                title: this.stringToBytes('CYFI'),
+                rev: this.numberTo2Bytes(0),
+                itemSize: this.numberTo2Bytes(itemSize)
             };
             var cysItem = [];
             var cysProfile = [];
@@ -1270,7 +1418,7 @@ var app = new Vue({
                         pos: profilePos,
                         len: [2],
                         key: { FN: 0x94, FN1: 0x95, PN: 0x96, FN3: 0x97 }[row.key],
-                        index: numberTo2Bytes(row.ktm.length),
+                        index: _this.numberTo2Bytes(row.ktm.length),
                         data: row.ktm
                     };
                     var profileLength = 8;
@@ -1282,8 +1430,8 @@ var app = new Vue({
                     cysItem.push({
                         type: [0],
                         profileIndex: [parseInt(row.profileIndex)],
-                        macroIndex: numberTo2Bytes(0),
-                        itemDataShift: numberTo4Bytes(profilePos)
+                        macroIndex: _this.numberTo2Bytes(0),
+                        itemDataShift: _this.numberTo4Bytes(profilePos)
                     });
                     profilePos += profileLength;
                 });
@@ -1325,7 +1473,7 @@ var app = new Vue({
                         len: [2],
                         key: [0x20],
                         index: profileIndex,
-                        data: profileData.concat(numberTo2Bytes(0))
+                        data: profileData.concat(_this.numberTo2Bytes(0))
                     };
                     var profileLength = 8;
                     if (profilePos % 0x1000 + profileLength > 0x1000) {
@@ -1336,8 +1484,8 @@ var app = new Vue({
                     cysItem.push({
                         type: [0],
                         profileIndex: [parseInt(row.profileIndex)],
-                        macroIndex: numberTo2Bytes(0),
-                        itemDataShift: numberTo4Bytes(profilePos)
+                        macroIndex: _this.numberTo2Bytes(0),
+                        itemDataShift: _this.numberTo4Bytes(profilePos)
                     });
                     profilePos += profileLength;
                 });
@@ -1364,8 +1512,8 @@ var app = new Vue({
                         pos: profilePos,
                         len: [2],
                         key: [0x18],
-                        index: numberTo2Bytes(macroIndex[row.profileIndex]),
-                        data: [parseInt(row.sourceKey, 16), parseInt(profileData, 2)].concat(numberTo2Bytes(parseInt(row.macroRepeat)))
+                        index: _this.numberTo2Bytes(macroIndex[row.profileIndex]),
+                        data: [parseInt(row.sourceKey, 16), parseInt(profileData, 2)].concat(_this.numberTo2Bytes(parseInt(row.macroRepeat)))
                     };
                     var profileLength = 8;
                     if (profilePos % 0x1000 + profileLength > 0x1000) {
@@ -1376,8 +1524,8 @@ var app = new Vue({
                     cysItem.push({
                         type: [0],
                         profileIndex: [parseInt(row.profileIndex)],
-                        macroIndex: numberTo2Bytes(0),
-                        itemDataShift: numberTo4Bytes(profilePos)
+                        macroIndex: _this.numberTo2Bytes(0),
+                        itemDataShift: _this.numberTo4Bytes(profilePos)
                     });
                     profilePos += profileLength;
                     var macro = {
@@ -1408,10 +1556,10 @@ var app = new Vue({
                         var timer = parseInt(item.timer);
                         var macroTimer = [];
                         if (timer < 16383) {
-                            macroTimer = numberTo2Bytes(timer / 0.5 - 1);
+                            macroTimer = _this.numberTo2Bytes(timer / 0.5 - 1);
                         }
                         else {
-                            macroTimer = numberTo2Bytes(Math.floor(timer / 512) - 1 + 32768);
+                            macroTimer = _this.numberTo2Bytes(Math.floor(timer / 512) - 1 + 32768);
                         }
                         macro.macro = macro.macro.concat([parseInt(item.key, 16), parseInt(macroData, 2)]).concat(macroTimer);
                     });
@@ -1425,8 +1573,8 @@ var app = new Vue({
                     cysItem.push({
                         type: [1],
                         profileIndex: [parseInt(row.profileIndex)],
-                        macroIndex: numberTo2Bytes(macroIndex[row.profileIndex]),
-                        itemDataShift: numberTo4Bytes(macroPos)
+                        macroIndex: _this.numberTo2Bytes(macroIndex[row.profileIndex]),
+                        itemDataShift: _this.numberTo4Bytes(macroPos)
                     });
                     macroPos += macroLength;
                     macroIndex[row.profileIndex]++;
@@ -1464,12 +1612,22 @@ var app = new Vue({
             }
             return new Uint8Array(bytes);
         },
-        Event: function(code, mode) {
-            return {
-                code: code,
-                event: mode,
-                timer: 10,
+        newEvent: function(key) {
+            if (this.editing_macro.events.length > 0) {
+                this.editing_macro.events[this.editing_macro.events.length - 1].timer = this.default_timer;
             }
+            this.editing_macro.events.push({
+                code: key,
+                event: 1,
+                timer: this.default_timer,
+            }, {
+                code: key,
+                event: 0,
+                timer: this.default_timer,
+            })
+        },
+        removeEvent: function(index) {
+            this.editing_macro.events.splice(index, 1);
         }
     }
 });

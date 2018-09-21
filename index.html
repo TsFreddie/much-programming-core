@@ -10,8 +10,8 @@
     <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.16/css/uikit.min.css" />
-    <link rel="stylesheet" href="css/muchpc.css?1" />
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <link rel="stylesheet" href="css/muchpc.css?2" />
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.16/js/uikit.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.16/js/uikit-icons.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.3/FileSaver.min.js"></script>
@@ -36,13 +36,13 @@
                     <div class="uk-navbar-item">Profile: </div>
                     <div class="uk-navbar-item">
                         <div class="uk-subnav uk-subnav-pill">
-                            <li @click="active_profile = 0" :class="{'uk-active': active_profile == 0}" type="button"><a
+                            <li @click="active_profile = 0" :class="{'uk-active': active_profile == 0}"><a
                                     class="uk-box-shadow-small uk-box-shadow-hover-medium">L0</a></li>
-                            <li @click="active_profile = 1" :class="{'uk-active': active_profile == 1}" type="button"><a
+                            <li @click="active_profile = 1" :class="{'uk-active': active_profile == 1}"><a
                                     class="uk-box-shadow-small uk-box-shadow-hover-medium">L1</a></li>
-                            <li @click="active_profile = 2" :class="{'uk-active': active_profile == 2}" type="button"><a
+                            <li @click="active_profile = 2" :class="{'uk-active': active_profile == 2}"><a
                                     class="uk-box-shadow-small uk-box-shadow-hover-medium">L2</a></li>
-                            <li @click="active_profile = 3" :class="{'uk-active': active_profile == 3}" type="button"><a
+                            <li @click="active_profile = 3" :class="{'uk-active': active_profile == 3}"><a
                                     class="uk-box-shadow-small uk-box-shadow-hover-medium">L3</a></li>
                         </div>
                     </div>
@@ -50,11 +50,7 @@
             </nav>
 
             <div class="uk-padding-small uk-text-right">
-                <form class="uk-upload" uk-form-custom>
-                    <input id="importFile" type="file" @change="importFile($event.target.files)">
-                    <button class="uk-button-small uk-button-default uk-box-shadow-small" type="button">Open JSON</button>
-                </form>
-
+                <button class="uk-button-small uk-button-default uk-box-shadow-small" @click="openFile(importFile)">Open JSON</button>
                 <button class="uk-button-small uk-button-default uk-box-shadow-small" @click="exportFile()">Save as
                     JSON</button>
                 <button class="uk-button-small uk-button-primary uk-box-shadow-small" @click="generate()">Generate
@@ -236,15 +232,24 @@
                     <li>
                         <div class="uk-margin">
                             <button class="uk-button uk-button-small uk-button-primary" @click="newMacro()"><i class="fas fa-plus"></i> New</button>
-                            <button class="uk-button uk-button-small uk-button-default" @click="newMacro()" uk-tooltip="Import macros from JSON file"><i class="far fa-file"></i> Import</button>
+                            <button class="uk-button uk-button-small uk-button-default" uk-tooltip="Import macros from JSON file."
+                            @click="openFile(importMacros)"><i class="far fa-file"></i> Import</button>
                             <span class="uk-align-right uk-text-meta">You can bind macros in Key Settings.</span>
                         </div>
+                        
                         <div class="uk-child-width-1-4" uk-grid>
                             <div v-for="(macro, index) in macros">
                                 <div class="uk-card uk-card-small uk-card-default uk-card-body uk-visible-toggle">
-                                    <h4 class="macro-title">{{ macro.title }}</h4>
-                                    <ul class="uk-iconnav uk-position-top-right uk-padding-small uk-invisible-hover">
-                                        <li><a @click="editMacro(index)"><i class="fas fa-pen-square uk-text-large"></i></a></li>
+                                    <div class="uk-text-meta">
+                                        <i class="fas fa-sync-alt"></i>
+                                        <span v-if="macro.type == 1">Once</span>
+                                        <span v-if="macro.type == 2">Until release</span>
+                                        <span v-if="macro.type == 3">Toggle</span>
+                                        <span v-if="macro.type == 4">{{ macro.repeats }} times</span>
+                                    </div>
+                                    <div class="macro-title uk-text-lead">{{ macro.title }}</div>
+                                    <ul class="uk-iconnav uk-position-top-right uk-invisible-hover" style="{margin: 10px;}">
+                                        <li><a @click="editMacro(index)"><i class="fas fa-pen-square uk-text-large uk-text-primary"></i></a></li>
                                     </ul>
                                     <div>
                                         <div v-for="code in previewMacro(macro).slice(0,6)"
@@ -290,7 +295,7 @@
             </div>
         </div>
 
-        <div id="key-selector-modal" class="uk-flex-top uk-modal-container" uk-modal>
+        <div id="key-selector-modal" class="key-selector uk-flex-top uk-modal-container" uk-modal>
             <div v-if="selected_key" class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
                 <div v-if="isUnbindable(currentKeyDefault) && currentKeyDefault == currentKeyBind" class="uk-alert-primary"
                     uk-alert>
@@ -317,10 +322,39 @@
                         <div v-else :class="['fk-space', 'fk-'+key.type]"></div>
                     </div>
                 </div>
+                <div class="uk-margin" uk-overflow-auto>
+                    <div v-for="(macro, index) in macros" class="uk-inline">
+                        <div class="macro-selection-border uk-box-shadow-medium uk-box-shadow-hover-large uk-padding-small"
+                            :class="{'uk-card-primary':binding_key == 'Macro' && binding_macro == macro.id }"
+                            @click="binding_key = 'Macro'; binding_macro = macro.id">
+                            <div class="uk-text-meta">
+                                <i class="fas fa-sync-alt"></i>
+                                <span v-if="macro.type == 1">Once</span>
+                                <span v-if="macro.type == 2">Until release</span>
+                                <span v-if="macro.type == 3">Toggle</span>
+                                <span v-if="macro.type == 4">{{ macro.repeats }} times</span>
+                            </div>
+                            <div class="macro-title uk-text-lead">{{ macro.title }}</div>
+                            <div>
+                                <div v-for="code in previewMacro(macro).slice(0,6)"
+                                        class="key-border key small fk-1x1 key-non-interactive">
+                                    <div class="key-container">
+                                        <div class="key-legend-main">
+                                            <span>{{ keyLegend[code] }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <span v-if="previewMacro(macro).length > 6" class="macro-more">+{{ previewMacro(macro).length-6 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="uk-margin">
                     <button class="uk-button uk-button-primary" @click="confirmBind()">Confirm</button>
-                    <button class="uk-button uk-button-secondary" :disabled="binding_key==currentKeyDefault" @click="binding_key=currentKeyDefault">Default</button>
                     <button class="uk-button uk-button-default uk-modal-close">Cancel</button>
+                    <div class="uk-align-right">
+                            <button class="uk-button uk-button-secondary" :disabled="binding_key==currentKeyDefault" @click="binding_key=currentKeyDefault">Default</button>
+                    </div>
                 </div>
                 <div v-if="isUnbindable(currentKeyDefault)" class="uk-align-right key-border key small fk-1x1" :class="{selected: binding_key == currentKeyDefault}"
                     @click="binding_key = currentKeyDefault;" uk-tooltip="There's no keycode of this function. However you can use this key to restore its original function.">
@@ -332,16 +366,35 @@
                 </div>
             </div>
 
-            <div id="macro-modal" class="uk-flex-top uk-modal-container" uk-modal>
+            <div id="macro-modal" class="key-selector uk-flex-top uk-modal-container" uk-modal>
                 <div v-if="editing_macro" class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
                     <div class="fullKeyboard">
                         <div class="uk-margin">
                             <input class="uk-input uk-form-width-large uk-form-large" type="text" @change="editing_macro.title=$event.target.value" :value="editing_macro.title"
-                                placeholder="Macro Name" autofocus>
+                                :class="{'uk-form-danger': editing_macro.title.length == 0}" placeholder="Macro Name" autofocus>
+                        </div>
+                        <div>
+                            <div class="uk-subnav uk-subnav-pill" style="margin: 20px">
+                                <li @click="editing_macro.type = 1" :class="{'uk-active': editing_macro.type == 1}"><a
+                                        class="uk-box-shadow-small uk-box-shadow-hover-medium">Once</a></li>
+                                <li @click="editing_macro.type = 2" :class="{'uk-active': editing_macro.type == 2}"><a
+                                        class="uk-box-shadow-small uk-box-shadow-hover-medium">Until Release</a></li>
+                                <li @click="editing_macro.type = 3" :class="{'uk-active': editing_macro.type == 3}"><a
+                                        class="uk-box-shadow-small uk-box-shadow-hover-medium">Toggle</a></li>
+                                <li @click="editing_macro.type = 4" :class="{'uk-active': editing_macro.type == 4}"><a
+                                        class="uk-box-shadow-small uk-box-shadow-hover-medium">Repeat</a></li>
+          
+                                    <input v-if="editing_macro.type == 4"
+                                        :value="editing_macro.repeats" type="text"
+                                        @change="setRepeats($event)"
+                                        class="uk-input uk-form-width-medium uk-form-small uk-form-width-xsmall repeats-input"
+                                    >
+                           
+                            </div>
                         </div>
                         <div class="row" v-for="(keys, index) in fullKeyboard" :row="index">
                             <div v-for="key in keys" class="key-border key small" v-if="key.code!=null && key.code != 'FN' && key.code != 'PN' && key.code != 'FN1' && key.code != '0'"
-                                @click="editing_macro.events.push(Event(key.code, 0), Event(key.code, 1))" :class="['fk-'+key.type]">
+                                @click="newEvent(key.code)" :class="['fk-'+key.type]">
                                 <div class="key-container">
                                     <div class="key-legend-main">
                                         <span v-html="keyLegend[key.code]"></span>
@@ -352,26 +405,42 @@
                         </div>
                     </div>
                     <draggable v-model="editing_macro.events" id="macro-list" class="uk-margin macro-event-list" :options="{handle: '.macro-event', animation: 200}" uk-overflow-auto>
-                        <span v-for="(event, index) in editing_macro.events">
-                            <div class="macro-event">
-                                <i class="fas fa-minus-circle"></i>
-                                {{ keyLegend[event.code] }} - {{ event.event }}
+                        <div v-for="(event, index) in editing_macro.events" class="macro-event-container">
+                            <div class="macro-event uk-visible-toggle" :class="{down: event.event == 1, up: event.event == 0}">
+                                <div class="key-container" style="width: 12mm">
+                                    <div class="key-legend-main" v-html="keyLegend[event.code]"></div>
+            
+                                    <a class="uk-invisible-hover uk-text-danger" @click="removeEvent(index)"><i class="fas fa-minus-circle"></i></a>
+                                    <span style="margin-left: 9px">
+                                        <i v-if="event.event == 1" class="fas fa-caret-square-down"></i>
+                                        <i v-if="event.event == 0" class="far fa-caret-square-up"></i>
+                                    </span>
+                                </div>
                             </div>
-                            <input v-if="index != editing_macro.events.length-1" :value="event.timer" type="number" min="1" max="16777216"
-                                @change="var time = parseInt('123'); "
-                                class="macro-interval">
-                        </span>
+                            <div class="macro-interval-container">
+                                <input :value="event.timer+'ms'" type="text"
+                                    @change="setTimer(event, $event)"
+                                    class="macro-interval uk-text-meta"
+                                    :class="{'long': event.timer > 1000}"
+                                    :style="{ width: 40+60*Math.min(event.timer, 1000)/1000 + 'px' }"
+                                    >
+                            </div>
+                        </div>
                     </draggable>
                     <div class="uk-margin">
                         <button class="uk-button uk-button-primary" :disabled="editing_macro.title.length == 0 || editing_macro.events.length ==0" @click="saveMacro()">Confirm</button>
                         <button class="uk-button uk-button-default uk-modal-close" :class="[{'uk-button-danger': new_macro}]">Cancel</button>
-                        <button v-if="!new_macro" @click="removeMacro()" class="uk-align-right uk-button uk-button-danger">Delete</button>
+                        <span class="uk-margin uk-text-meta">You can drag each key event to change its order.</span>
+                        <div class="uk-align-right">
+                            <button v-if="!new_macro" @click="removeMacro()" class="uk-button uk-button-danger">Delete</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        <input id="importFile" type="file" hidden>
     </div>
-    <script src="js/muchpc.js?1"></script>
+    <script src="js/muchpc.js?2"></script>
 </body>
 
 </html>

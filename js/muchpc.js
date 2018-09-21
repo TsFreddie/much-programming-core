@@ -1199,15 +1199,15 @@ var app = new Vue({
                 break;
                 case 1:
                 this.binding_key = profile.pn;
-                this.binding_macro = profile.bind_pn;
+                this.binding_macro = profile.pn_macro;
                 break;
                 case 2:
                 this.binding_key = profile.fn;
-                this.binding_macro = profile.bind_fn;
+                this.binding_macro = profile.fn_macro;
                 break;
                 case 3:
                 this.binding_key = profile.fn1;
-                this.binding_macro = profile.bind_fn1;
+                this.binding_macro = profile.fn1_macro;
                 break;
             }
             UIkit.modal('#key-selector-modal', {bgClose: null}).show();

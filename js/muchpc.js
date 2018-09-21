@@ -1187,7 +1187,7 @@ var app = new Vue({
             UIkit.modal('#macro-modal').hide();
         },
         previewMacro: function(macro) {
-            return macro.events.filter(function(e) {return e.event==0;}).map(function(e){return e.code});
+            return macro.events.filter(function(e) {return e.event==1;}).map(function(e){return e.code});
         },
         bindKey: function (type) {
             var profile = this.selected_key.profiles[this.active_profile];

@@ -1122,7 +1122,7 @@ var app = new Vue({
         },
         setTimer: function (event, e) {
             event.timer = parseInt(e.target.value);
-            event.timer = (event.timer == NaN) ? 10 : Math.min(Math.max(event.timer, 1), 16777216);
+            event.timer = (!event.timer) ? 10 : Math.min(Math.max(event.timer, 1), 16777216);
             this.default_timer = event.timer;
         },
         setRepeats: function (e) {

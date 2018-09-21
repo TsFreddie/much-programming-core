@@ -476,9 +476,9 @@ const keyLegend = {
     'FC': '<i class="fas fa-sync-alt"></i>',
     'FD': '<i class="fas fa-heart"></i>',      // FE-FF?
     // Cheating keycode
-    'FN': '<span class="color_fn">Fn</span>',
-    'PN': '<span class="color_pn">Pn</span>',
-    'FN1': '<span class="color_fn1">Fn1</span>',
+    'FN': '<span class="color-fn">Fn</span>',
+    'PN': '<span class="color-pn">Pn</span>',
+    'FN1': '<span class="color-fn1">Fn1</span>',
     'Light': '<i class="fas fa-lightbulb"></i>',
     'L0': 'L0',
     'L1': 'L1',

@@ -255,9 +255,7 @@
                                         <div v-for="code in previewMacro(macro).slice(0,6)"
                                              class="key-border key small fk-1x1 key-non-interactive">
                                             <div class="key-container">
-                                                <div class="key-legend-main">
-                                                    <span>{{ keyLegend[code] }}</span>
-                                                </div>
+                                                <div class="key-legend-main" v-html="keyLegend[code]"></div>
                                             </div>
                                         </div>
                                         <span v-if="previewMacro(macro).length > 6" class="macro-more">+{{ previewMacro(macro).length-6 }}</span>
@@ -339,9 +337,7 @@
                                 <div v-for="code in previewMacro(macro).slice(0,6)"
                                         class="key-border key small fk-1x1 key-non-interactive">
                                     <div class="key-container">
-                                        <div class="key-legend-main">
-                                            <span>{{ keyLegend[code] }}</span>
-                                        </div>
+                                        <div class="key-legend-main" v-html="keyLegend[code]"></div>
                                     </div>
                                 </div>
                                 <span v-if="previewMacro(macro).length > 6" class="macro-more">+{{ previewMacro(macro).length-6 }}</span>

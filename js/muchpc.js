@@ -1154,7 +1154,6 @@ var app = new Vue({
             UIkit.modal('#macro-modal', {bgClose: null}).show();
         },
         saveMacro: function () {
-            console.log("hi");
             if (this.new_macro) {
                 this.macros.push(this.editing_macro);
                 this.macro_next_id += 1;

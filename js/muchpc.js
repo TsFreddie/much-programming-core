@@ -1112,7 +1112,7 @@ var app = new Vue({
             if (this.fileListener) {
                 inputFile.removeEventListener('change', this.fileListener);
             }
-            this.fileListener = function(t) { callback(t.target.files); }
+            this.fileListener = function(t) { callback(t.target.files); t.target.value = ''; }
             inputFile.addEventListener('change', this.fileListener);
             if(inputFile && document.createEvent) {
                 var evt = document.createEvent("MouseEvents");
@@ -1139,7 +1139,6 @@ var app = new Vue({
                 repeats: 2,
                 type: 1,
             }
-            this.macro_next_id += 1;
             UIkit.modal('#macro-modal', {bgClose: null}).show();
         },
         editMacro: function (index) {
@@ -1158,6 +1157,7 @@ var app = new Vue({
             console.log("hi");
             if (this.new_macro) {
                 this.macros.push(this.editing_macro);
+                this.macro_next_id += 1;
                 new_macro = false;
             } else {
                 this.macros[this.editing_macro_index].repeats = this.editing_macro.repeats;

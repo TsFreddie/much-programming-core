@@ -774,7 +774,7 @@ function defaultRows() {
             Key('1B', 14),
             Key('6', 15, ['0','0','Light']),
             Key('19', 22, ['0','0','Light']),
-            Key('5', 23, ['0', '34']),
+            Key('5', 23, ['0', '36']),
             Key('11', 30, ['4D', '38']),
             Key('10', 21, ['L0', '2F']),
             Key('36', 38, ['L1','30','Light']),
@@ -1289,7 +1289,24 @@ var app = new Vue({
                         _this.macros = obj.macros;
                         _this.macro_next_id = obj.macros[obj.macros.length-1].id + 1;
                     }
-                    _this.rows = obj.layout;
+
+                    _set_key = function(key, imported) {
+                        key.profiles.forEach(function (p, index) {
+                            p.bind = imported.profiles[index].bind;
+                            p.fn = imported.profiles[index].fn;
+                            p.fn1 = imported.profiles[index].fn1;
+                            p.pn = imported.profiles[index].pn;
+                            p.bind_macro = imported.profiles[index].bind_macro;
+                            p.fn_macro = imported.profiles[index].fn_macro;
+                            p.fn1_macro = imported.profiles[index].fn1_macro;
+                            p.pn_macro = imported.profiles[index].pn_macro;
+                        })
+                    }
+                    _this.rows.forEach(function (row, r) {
+                        row.forEach(function (key, k) {
+                            _set_key(key, obj.layout[r][k]);
+                        });
+                    });
                     UIkit.notification('<i class="fas fa-check"></i> Layout file opened.', {pos: 'bottom-right',status:'success'}).$el.classList.add('uk-box-shadow-large');
                 } catch (err) {
                     console.error(err);
@@ -1431,7 +1448,7 @@ var app = new Vue({
                         profileIndex: [parseInt(row.profileIndex)],
                         macroIndex: _this.numberTo2Bytes(0),
                         itemDataShift: _this.numberTo4Bytes(profilePos)
-                    });
+                    }); 
                     profilePos += profileLength;
                 });
                 //key change

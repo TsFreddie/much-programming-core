@@ -1127,7 +1127,7 @@ var app = new Vue({
         },
         setRepeats: function (e) {
             this.editing_macro.repeats = parseInt(e.target.value);
-            this.editing_macro.repeats = (this.editing_macro.repeats == NaN) ? 10 : Math.min(Math.max(this.editing_macro.repeats, 2), 510);
+            this.editing_macro.repeats = (!this.editing_macro.repeats) ? 2 : Math.min(Math.max(this.editing_macro.repeats, 2), 510);
         },
         newMacro: function () {
             this.new_macro = true;

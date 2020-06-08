@@ -843,6 +843,7 @@ var app = new Vue({
         // other
         UIkit: UIkit,
         fileListener: null,
+        advanced: false
     },
     computed: {
         ledClass: function () {

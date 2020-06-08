@@ -338,6 +338,18 @@
                         </div>
                         <div v-else :class="['fk-space', 'fk-'+key.type]"></div>
                     </div>
+                    <div class="advanced-selector">
+                        <input type="checkbox" id="advanced-toggle" v-model="advanced"><label for="advanced-toggle">Advanced</label>
+                        <div v-show="advanced">
+                            <div class="warning">
+                                [This list includes keys with unknown behaviors! F13 - F24 is pretty safe for extra keys though. :) The ones starting with "KB_" have also mostly worked for me under linux (Xorg) to create more unique keybinding for the i3 window manager with Fn, Fn1 and Pn as modifiers.]
+                            </div>
+                            <select v-model="binding_key">
+                                <option v-for="key in Object.keys(keyLegend)" v-bind:value="key">{{ keyName[key] }}</option>
+                            </select>
+                            <div v-html="keyLegend[binding_key]"></div>
+                        </div>
+                    </div>
                 </div>
                 <div class="uk-margin" uk-overflow-auto>
                     <div v-for="(macro, index) in macros" class="uk-inline">

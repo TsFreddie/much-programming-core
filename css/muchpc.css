@@ -315,6 +315,22 @@
     width: 10mm;
 }
 
+.advanced-selector {
+    margin-top: 25px;
+    font-size: 15pt;
+}
+
+.advanced-selector .warning {
+    color: red;
+    font-style: italic;
+    font-size: 12pt;
+}
+
+.advanced-selector input ,
+.advanced-selector label {
+    vertical-align: middle;
+}
+
 .macro-title {
     max-height: 3em;
     overflow: hidden;

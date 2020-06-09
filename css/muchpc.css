@@ -98,6 +98,10 @@
     color: red;
 }
 
+.key-form-custom.uk-form-custom {
+    vertical-align: inherit;
+}
+
 .key-legend-pn {
     position: absolute;
     top: 9.5mm;
@@ -202,6 +206,16 @@
 .fk-0_5x1 .key-container {
     height: 5mm;
     width: 10mm;
+}
+
+.fk-0_5x0_5 {
+    height: 6mm;
+    width: 6mm;
+}
+
+.fk-0_5x0_5 .key-container {
+    height: 5mm;
+    width: 4mm;
 }
 
 .fk-1x0_5 {
@@ -422,3 +436,6 @@
 .repeats-input {
     margin-left: 15px;
 }
+
+.progress-danger::-webkit-progress-value { background-color: red; } 
+.progress-danger::-ms-fill { background-color: red; }

@@ -20,6 +20,7 @@ Vue.directive( "sortable", function( value ) {
 //  Const declarations
 // -----------------------
 const locked_keys = ['FN'];
+const unavaliabe_keys = ['C9', 'CF', 'E7', 'Light', 'Macro'];
 const unbindable_keys = ['Light'];
 const unbindable_desc = ['change a specific RGB setting'];
 const special_keys = {
@@ -206,7 +207,7 @@ const keyName = {
     'C5': 'G6',
     'C6': 'G7',
     'C7': 'G8',
-    'C8': 'L_Space', // G9
+    'C8': 'G9', // L_Space
     'C9': 'G10(Fn1)',
     'CA': 'G11',
     'CB': 'G12',
@@ -517,6 +518,33 @@ const fullKeyboard = [
         FK(null, '0_5x1')
     ],
     [
+        FK(null, '0_5x1'),
+        FK(null, '0_5x1'),
+        FK('68', '0_5x1'),
+        FK('69', '0_5x1'),
+        FK('6A', '0_5x1'),
+        FK('6B', '0_5x1'),
+        FK(null, '0_5x0_5'),
+        FK('6C', '0_5x1'),
+        FK('6D', '0_5x1'),
+        FK('6E', '0_5x1'),
+        FK('6F', '0_5x1'),
+        FK(null, '0_5x0_5'),
+        FK('70', '0_5x1'),
+        FK('71', '0_5x1'),
+        FK('72', '0_5x1'),
+        FK('73', '0_5x1'),
+        FK(null, '0_5x0_5'),
+        FK(null, '0_5x1'),
+        FK(null, '0_5x1'),
+        FK(null, '0_5x1'),
+        FK(null, '0_5x0_5'),
+        FK(null, '0_5x1'),
+        FK(null, '0_5x1'),
+        FK(null, '0_5x1'),
+        FK(null, '0_5x1'),
+    ],
+    [
         FK('29'),
         FK(null),
         FK('3A'),
@@ -659,14 +687,27 @@ const fullKeyboard = [
     ],
 ]
 
+const visibleKeyCode = fullKeyboard.reduce((p, r)=>p.concat(r.map(v=>v.code)),[]);
+const hiddenKeyCode = Object.keys(keyName).filter(v=>unavaliabe_keys.indexOf(v) < 0 && visibleKeyCode.indexOf(v) < 0).sort((a,b)=>(a.length - b.length || a.localeCompare(b)));
+
+// Patch keyLegend so I don't need to change it
+for (const key of hiddenKeyCode) {
+    keyLegend[key] = '<i class="fas fa-flask"></i>';
+}
+
 // -----------------------
 //  Templates
 // -----------------------
-function Key(keyCode, fnktm, defaults = [], type = '1x1') {
-    var default_fn = !defaults[0] ? '0' : defaults[0]
-    var default_fn1 = !defaults[1] ? '0' : defaults[1]
-    var default_pn = !defaults[2] ? '0' : defaults[2]
-    var override_bind = !defaults[3] ? keyCode : defaults[3]
+function Key(keyCode, fnktm, defaults = [], type = '1x1', override = []) {
+    var default_fn = !defaults[0] ? '0' : defaults[0];
+    var default_fn1 = !defaults[1] ? '0' : defaults[1];
+    var default_pn = !defaults[2] ? '0' : defaults[2];
+    var default_bind = !defaults[3] ? keyCode : defaults[3];
+
+    var override_fn = !override[0] ? default_fn : override[0];
+    var override_fn1 = !override[1] ? default_fn1 : override[1];
+    var override_pn = !override[2] ? default_pn : override[2];
+    var override_bind = !override[3] ? default_bind : override[3];
     return {
         code: keyCode,
         locked: locked_keys.indexOf(override_bind) >= 0,
@@ -676,11 +717,11 @@ function Key(keyCode, fnktm, defaults = [], type = '1x1') {
             default_fn: default_fn,
             default_fn1: default_fn1,
             default_pn: default_pn,
-            default_bind: override_bind,
+            default_bind: default_bind,
             bind: override_bind,
-            fn: default_fn,
-            fn1: default_fn1,
-            pn: default_pn,
+            fn: override_fn,
+            fn1: override_fn1,
+            pn: override_pn,
             bind_macro: -1,
             fn_macro: -1,
             fn1_macro: -1,
@@ -690,11 +731,11 @@ function Key(keyCode, fnktm, defaults = [], type = '1x1') {
             default_fn: default_fn,
             default_fn1: default_fn1,
             default_pn: default_pn,
-            default_bind: override_bind,
+            default_bind: default_bind,
             bind: override_bind,
-            fn: default_fn,
-            fn1: default_fn1,
-            pn: default_pn,
+            fn: override_fn,
+            fn1: override_fn1,
+            pn: override_pn,
             bind_macro: -1,
             fn_macro: -1,
             fn1_macro: -1,
@@ -704,11 +745,11 @@ function Key(keyCode, fnktm, defaults = [], type = '1x1') {
             default_fn: default_fn,
             default_fn1: default_fn1,
             default_pn: default_pn,
-            default_bind: override_bind,
+            default_bind: default_bind,
             bind: override_bind,
-            fn: default_fn,
-            fn1: default_fn1,
-            pn: default_pn,
+            fn: override_fn,
+            fn1: override_fn1,
+            pn: override_pn,
             bind_macro: -1,
             fn_macro: -1,
             fn1_macro: -1,
@@ -718,11 +759,11 @@ function Key(keyCode, fnktm, defaults = [], type = '1x1') {
             default_fn: default_fn,
             default_fn1: default_fn1,
             default_pn: default_pn,
-            default_bind: override_bind,
+            default_bind: default_bind,
             bind: override_bind,
-            fn: default_fn,
-            fn1: default_fn1,
-            pn: default_pn,
+            fn: override_fn,
+            fn1: override_fn1,
+            pn: override_pn,
             bind_macro: -1,
             fn_macro: -1,
             fn1_macro: -1,
@@ -774,7 +815,7 @@ function defaultRows() {
             Key('1B', 14),
             Key('6', 15, ['0','0','Light']),
             Key('19', 22, ['0','0','Light']),
-            Key('5', 23, ['0', '36']),
+            Key('5', 23, ['0', '36'], '1x1', ['0', '34']),
             Key('11', 30, ['4D', '38']),
             Key('10', 21, ['L0', '2F']),
             Key('36', 38, ['L1','30','Light']),
@@ -868,6 +909,20 @@ var app = new Vue({
                 return "Fn1 + ";
             }
             return "";
+        },
+        currentProfileNumMacro: function () {
+            let count = 0;
+            for (var r in this.rows) {
+                var row = this.rows[r];
+                for (k in row) {
+                    var key = row[k];
+                    if (key.profiles[this.active_profile].bind == "Macro") count += 1;
+                    if (key.profiles[this.active_profile].pn == "Macro") count += 1;
+                    if (key.profiles[this.active_profile].fn == "Macro") count += 1;
+                    if (key.profiles[this.active_profile].fn1 == "Macro") count += 1;
+                }
+            }
+            return count;
         },
         currentKeyProfile: function() {
             return this.selected_key.profiles[this.active_profile];

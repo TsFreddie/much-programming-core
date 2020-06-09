@@ -56,6 +56,7 @@
                 <button class="uk-button-small uk-button-primary uk-box-shadow-small" @click="generate()">Generate
                     Binary File</button>
             </div>
+
             <div id="container" class="uk-padding uk-padding-remove-top">
                 <div class="core">
                     <div class="led" :class="ledClass"></div>
@@ -75,6 +76,19 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="macro-limit uk-margin">
+                    <span>Macro Limit </span>
+                    <span><i class="fas fa-question-circle" uk-tooltip="MPC firmware has a hard limit of 20 macros per profile."></i></span>
+                    <span>:</span>
+                    <span>{{currentProfileNumMacro}}/20</span>
+                    <progress class="uk-progress" :value="currentProfileNumMacro" max="20" :class="{'progress-danger': currentProfileNumMacro > 20}"></progress>
+
+                    <div v-if="currentProfileNumMacro > 20" class="uk-alert-danger" uk-alert>
+                        You can safely apply the layout, but not all of your macros are guaranteed to work.
+                    </div>
+                </div>
+
                 <ul id="tabs" uk-tab>
                     <li><a><i class="fas fa-info-circle"></i></a></li>
                     <li><a>Macros</a></li>
@@ -92,11 +106,21 @@
                         <h4>Changelog <button class="uk-button uk-button-default uk-button-small" uk-toggle="target: #old-changelog; animation: uk-animation-fade" type="button">History</button></h4>
                         <div class="uk-margin">
                             <div class="uk-card uk-card-body uk-box-shadow-medium uk-card-secondary uk-card-small">
-                                <h3 class="uk-card-title">v2.8</h3>
-                                Fixed the clamp function of the repeat setting in macro editor.
+                                <h3 class="uk-card-title">v2.9</h3>
+                                <ul>
+                                    <li>Added F13 to F24.</li>
+                                    <li>Added experimental keys which allows you to use all avaliable keycodes in the firmware.</li>
+                                    <li>Added a macro limit indicator.</li>
+                                </ul>
                             </div>
                         </div>
                         <div class="uk-child-width-1-2" id="old-changelog" uk-grid hidden>
+                            <div>
+                                <div class="uk-card uk-card-body uk-box-shadow-large uk-card-small">
+                                    <h3 class="uk-card-title">v2.8</h3>
+                                    Fixed the clamp function of the repeat setting in macro editor.
+                                </div>
+                            </div>
                             <div>
                                 <div class="uk-card uk-card-body uk-box-shadow-large uk-card-small">
                                     <h3 class="uk-card-title">v2.7</h3>
@@ -338,18 +362,6 @@
                         </div>
                         <div v-else :class="['fk-space', 'fk-'+key.type]"></div>
                     </div>
-                    <div class="advanced-selector">
-                        <input type="checkbox" id="advanced-toggle" v-model="advanced"><label for="advanced-toggle">Advanced</label>
-                        <div v-show="advanced">
-                            <div class="warning">
-                                [This list includes keys with unknown behaviors! F13 - F24 is pretty safe for extra keys though. :) The ones starting with "KB_" have also mostly worked for me under linux (Xorg) to create more unique keybinding for the i3 window manager with Fn, Fn1 and Pn as modifiers.]
-                            </div>
-                            <select v-model="binding_key">
-                                <option v-for="key in Object.keys(keyLegend)" v-bind:value="key">{{ keyName[key] }}</option>
-                            </select>
-                            <div v-html="keyLegend[binding_key]"></div>
-                        </div>
-                    </div>
                 </div>
                 <div class="uk-margin" uk-overflow-auto>
                     <div v-for="(macro, index) in macros" class="uk-inline">
@@ -381,13 +393,32 @@
                     <button class="uk-button uk-button-secondary" :disabled="binding_key==currentKeyDefault" @click="binding_key=currentKeyDefault">Default</button>
                     <button class="uk-button uk-button-default uk-modal-close">Cancel</button>
                     
-                    <div v-if="isUnbindable(currentKeyDefault)" class="uk-align-right key-border key small fk-1x1" :class="{selected: binding_key == currentKeyDefault}"
-                        @click="binding_key = currentKeyDefault;" uk-tooltip="There's no keycode of this function. However you can use this key to restore its original function.">
-                        <div class="key-container">
-                            <div class="key-legend-main">
-                                <span v-html="keyLegend[currentKeyDefault]"></span>
+                    <div class="uk-align-right">
+
+                        <div v-if="isUnbindable(currentKeyDefault)" class="key-border key small fk-1x1" :class="{selected: binding_key == currentKeyDefault}"
+                            @click="binding_key = currentKeyDefault;" uk-tooltip="There are no keycodes for this function. You can use this key to restore its original function.">
+                            <div class="key-container">
+                                <div class="key-legend-main">
+                                    <span v-html="keyLegend[currentKeyDefault]"></span>
+                                </div>
                             </div>
                         </div>
+
+                        <div class="key-form-custom" uk-form-custom uk-tooltip="All other keycodes that are not listed above.">
+                            <select class="uk-select uk-form-width-medium" v-model="binding_key">
+                                <option v-for="key in hiddenKeyCode" v-bind:value="key">{{ keyName[key] }}</option>
+                            </select>
+               
+                            <div class="key-border key small fk-1x1" :class="{selected: hiddenKeyCode.indexOf(binding_key) >= 0}"
+                                @click="">
+                                <div class="key-container">
+                                    <div class="key-legend-main">
+                                        <span><i class="fas fa-flask"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+    
                     </div>
                 </div>
             </div>

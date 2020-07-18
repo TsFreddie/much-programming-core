@@ -867,6 +867,7 @@ var app = new Vue({
         selected_key_layer: 0,
         editing_macro: null,
         editing_macro_index: null,
+        editing_macro_from_keybind: false,
         new_macro: false,
         macro_next_id: 0,
         default_timer: 10,
@@ -1185,7 +1186,7 @@ var app = new Vue({
             this.editing_macro.repeats = parseInt(e.target.value);
             this.editing_macro.repeats = (!this.editing_macro.repeats) ? 2 : Math.min(Math.max(this.editing_macro.repeats, 2), 510);
         },
-        newMacro: function () {
+        newMacro: function (from_keybind = false) {
             this.new_macro = true;
             this.default_timer = 10;
             this.editing_macro = {
@@ -1195,9 +1196,10 @@ var app = new Vue({
                 repeats: 2,
                 type: 1,
             }
+            this.editing_macro_from_keybind = from_keybind;
             UIkit.modal('#macro-modal', {bgClose: null}).show();
         },
-        editMacro: function (index) {
+        editMacro: function (index, from_keybind = false) {
             this.new_macro = false;
             this.default_timer = 10;
             this.editing_macro_index = index;
@@ -1207,6 +1209,7 @@ var app = new Vue({
                 repeats: this.macros[index].repeats,
                 type: this.macros[index].type
             };
+            this.editing_macro_from_keybind = from_keybind;
             UIkit.modal('#macro-modal', {bgClose: null}).show();
         },
         saveMacro: function () {
@@ -1220,9 +1223,13 @@ var app = new Vue({
                 this.macros[this.editing_macro_index].title = this.editing_macro.title;
                 this.macros[this.editing_macro_index].events = this.editing_macro.events;
             }
-            UIkit.modal('#macro-modal').hide();
+            if (this.editing_macro_from_keybind) {
+                UIkit.modal('#key-selector-modal', {bgClose: null}).show();
+            } else {
+                UIkit.modal('#macro-modal').hide();
+            }
         },
-        removeMacro: function(){
+        removeMacro: function() {
             this.macros.splice(this.editing_macro_index, 1);
             // Unbind macro keys
             this.rows.map(function(row){row.map(function(k){k.profiles.map(function(key) {
@@ -1239,7 +1246,18 @@ var app = new Vue({
                     key.pn = '0';
                 }
             })})});
-            UIkit.modal('#macro-modal').hide();
+            if (this.editing_macro_from_keybind) {
+                UIkit.modal('#key-selector-modal', {bgClose: null}).show();
+            } else {
+                UIkit.modal('#macro-modal').hide();
+            }
+        },
+        cancelMacro: function() {
+            if (this.editing_macro_from_keybind) {
+                UIkit.modal('#key-selector-modal', {bgClose: null}).show();
+            } else {
+                UIkit.modal('#macro-modal').hide();
+            }
         },
         previewMacro: function(macro) {
             return macro.events.filter(function(e) {return e.event==1;}).map(function(e){return e.code});
@@ -1291,6 +1309,17 @@ var app = new Vue({
         },
         addMacro: function () {
             UIkit.modal('#macro-modal', {bgClose: null}).show()
+        },
+        generateOld: function (){
+            try {
+                var blob = new Blob([this.convertToBytesOld(this.rowsToMPCData)], { type: "octet/stream" });
+                UIkit.notification('<i class="fas fa-download"></i> Layout file generated.', {pos: 'bottom-right',status:'success'}).$el.classList.add('uk-box-shadow-large');
+                saveAs(blob, 'layout.cys');
+            } catch (err) {
+                console.error(err);
+                UIkit.notification('<i class="fas fa-exclamation-circle"></i> Generation failed. Something is wrong on our part.', {pos: 'bottom-right',status:'danger'}).$el.classList.add('uk-box-shadow-large');
+            }
+
         },
         generate: function (){
             try {
@@ -1466,7 +1495,134 @@ var app = new Vue({
         isLocal: function(){
             return window.location.protocol == "file:"
         },
-        convertToBytes: function (mpcData) {
+        convertToBytes: function (mpc) {
+            const buffer = [];
+
+            const grow = (offset, fill) => {
+                while (buffer.length < offset) {
+                    buffer.push(fill);
+                }
+            }
+            const set1Byte = (offset, num) => {
+                grow(offset+1);
+                let bytes = num & 0xff;
+                buffer[offset] = bytes;
+            };
+
+            const set2Bytes = (offset, num) => {
+                grow(offset+2);
+                let bytes = num & 0xffff;
+                buffer[offset] = bytes & 0xff;
+                buffer[offset+1] = (bytes & 0xff00) >> 8;
+            };
+
+            const set4Bytes = (offset, num) => {
+                grow(offset+4);
+                let bytes = num & 0xffffffff;
+                buffer[offset] = bytes & 0xff;
+                buffer[offset+1] = (bytes & 0xff00) >> 8;
+                buffer[offset+2] = (bytes & 0xff0000) >> 16;
+                buffer[offset+3] = (bytes & 0xff000000) >> 24;
+            };
+
+            const set8Bytes = (offset, arr) => {
+                grow(offset+8);
+                buffer[offset] = arr[0], buffer[offset+1] = arr[1];
+                buffer[offset+2] = arr[2], buffer[offset+3] = arr[3];
+                buffer[offset+4] = arr[4], buffer[offset+5] = arr[5];
+                buffer[offset+6] = arr[6], buffer[offset+7] = arr[7];
+            };
+
+            const encode8Bytes = (arr) => {
+                const first = (arr[0] << 8) + arr[1];
+                const secon = (arr[2] << 8) + arr[3];
+                const third = (arr[4] << 8) + arr[5];
+                const fourt = (arr[6] << 8) + arr[7];
+                return ("0000" + first.toString(16)).substr(-4) + 
+                       ("0000" + secon.toString(16)).substr(-4) +
+                       ("0000" + third.toString(16)).substr(-4) + 
+                       ("0000" + fourt.toString(16)).substr(-4);
+            };
+
+            const profileCount = 4;
+            const macroIndex = new Array(profileCount).fill(0);
+            const itemSize = mpc.macro.length * 2 + mpc.keyChange.length + mpc.functionSet.length;
+
+            set4Bytes(0, 1229347139); // CYFI
+            set2Bytes(4, 0); // revision
+            set2Bytes(6, itemSize);
+
+            const macroData = [];
+            let descriptorOffset = 8 + itemSize * 8;
+            let dataOffset = 8;
+            
+            const processProfile = (profile) => {
+                const functionSet = mpc.functionSet.filter((v) => v.profileIndex == profile);        
+                for (const data of functionSet) {
+                    const layerCode = { FN: 0x94, FN1: 0x95, PN: 0x96 }[data.key];
+                    const descriptor = [0x02, layerCode, data.ktm.length, 0, 0, 0, 0, 0];
+                    let index = 4;
+                    for (const ktm of data.ktm) {
+                        descriptor[index] = ktm;
+                        index += 1;
+                    }
+                    
+                    const key = encode8Bytes(descriptor);
+
+                    set8Bytes(descriptorOffset, descriptor);
+                    
+                    set1Byte(dataOffset, 0);
+                    set1Byte(dataOffset+1, data.profileIndex);
+                    set2Bytes(dataOffset+2, 0);
+                    set4Bytes(dataOffset+4, descriptorOffset);
+                    dataOffset += 8;
+                    descriptorOffset += 8;
+                }
+
+                const keyChanges = mpc.keyChange.filter((v) => v.profileIndex == profile); 
+                for (const data of keyChanges) {
+                    const sourceLayer = { FN: 1, FN1: 2, PN: 3, INIT: 0 }[data.sourceLayer];
+                    const targetLayer = { FN: 1, FN1: 2, PN: 3, INIT: 0 }[data.targetLayer];
+                    
+                    const descriptor = [0x02, 0x20,
+                        parseInt(data.sourceKey, 16), sourceLayer,
+                        parseInt(data.targetKey, 16), targetLayer,
+                        0, 0];
+   
+                    const key = encode8Bytes(descriptor);
+                    
+                    set8Bytes(descriptorOffset, descriptor);
+            
+                    set1Byte(dataOffset, 0);
+                    set1Byte(dataOffset+1, data.profileIndex);
+                    set2Bytes(dataOffset+2, 0);
+                    set4Bytes(dataOffset+4, descriptorOffset);
+
+                    descriptorOffset += 8;
+                    dataOffset += 8;
+                }
+
+                const macros = mpc.macro.filter((v) => v.profileIndex == profile);
+                
+                for (const data of macros) {
+                    const macroType = (data.macroType << 5) + 0x1C + { FN: 1, FN1: 2, PN: 3, INIT: 0}[data.sourceLayer];
+                    const descriptor = [0x02, 0x20,
+                        parseInt(data.sourceKey, 16), sourceLayer,
+                        parseInt(data.targetKey, 16), targetLayer,
+                        0, 0];
+                }
+
+                descriptorOffset += 1;
+            }
+
+            for (let profile = 0; profile < profileCount; profile++) {
+                processProfile(profile);
+            }
+
+            grow(8192, 255);
+            return new Uint8Array(buffer);
+        },
+        convertToBytesOld: function (mpcData) {
             var _this = this;
             var profileCount = 4;
             var itemSize = mpcData.macro.length * 2 + mpcData.keyChange.length + mpcData.functionSet.length;
@@ -1489,7 +1645,7 @@ var app = new Vue({
                     var profile = {
                         pos: profilePos,
                         len: [2],
-                        key: { FN: 0x94, FN1: 0x95, PN: 0x96, FN3: 0x97 }[row.key],
+                        key: { FN: 0x94, FN1: 0x95, PN: 0x96 }[row.key],
                         index: _this.numberTo2Bytes(row.ktm.length),
                         data: row.ktm
                     };
@@ -1700,6 +1856,17 @@ var app = new Vue({
         },
         removeEvent: function(index) {
             this.editing_macro.events.splice(index, 1);
-        }
+        },
+        currentProfileNumModifier: function (modifier) {
+            let count = 0;
+            for (var r in this.rows) {
+                var row = this.rows[r];
+                for (k in row) {
+                    var key = row[k];
+                    if (key.profiles[this.active_profile].bind == modifier) count += 1;
+                }
+            }
+            return count;
+        },
     }
 });

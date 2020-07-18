@@ -49,12 +49,15 @@
                 </div>
             </nav>
 
-            <div class="uk-padding-small uk-text-right">
-                <button class="uk-button-small uk-button-default uk-box-shadow-small" @click="openFile(importFile)">Open JSON</button>
-                <button class="uk-button-small uk-button-default uk-box-shadow-small" @click="exportFile()">Save as
-                    JSON</button>
-                <button class="uk-button-small uk-button-primary uk-box-shadow-small" @click="generate()">Generate
-                    Binary File</button>
+            <div class="uk-padding-small">
+                <button class="uk-button-small uk-button-default uk-box-shadow-small" @click="openFile(importFile)">Load JSON</button>
+                <button class="uk-button-small uk-button-default uk-box-shadow-small" @click="exportFile()">Save JSON</button>
+                
+                <span style="margin-left: 38%;">Generate Binary File</span>
+                <span><i class="fas fa-question-circle" uk-tooltip="If one of them has problems, try the other one."></i></span>
+                <span>:</span>
+                <button class="uk-button-small uk-button-primary uk-box-shadow-small" @click="generateOld()">Method A</button>
+                <button class="uk-button-small uk-button-primary uk-box-shadow-small" @click="generate()">Method B</button>
             </div>
 
             <div id="container" class="uk-padding uk-padding-remove-top">
@@ -106,15 +109,25 @@
                         <h4>Changelog <button class="uk-button uk-button-default uk-button-small" uk-toggle="target: #old-changelog; animation: uk-animation-fade" type="button">History</button></h4>
                         <div class="uk-margin">
                             <div class="uk-card uk-card-body uk-box-shadow-medium uk-card-secondary uk-card-small">
-                                <h3 class="uk-card-title">v2.9</h3>
+                                <h3 class="uk-card-title">v3.0</h3>
                                 <ul>
-                                    <li>Added F13 to F24.</li>
-                                    <li>Added experimental keys which allows you to use all avaliable keycodes in the firmware.</li>
-                                    <li>Added a macro limit indicator.</li>
+                                    <li><b>Added a reversed engineered binary generation procedure (Method B), please let me know which one works for you on <a href="https://github.com/TsFreddie/much-programming-core/issues">Github</a>.</b></li>
+                                    <li>Now it is possible to create macro from keybinding window.</li>
+                                    <li>Added experimental keys to macros.</li>
                                 </ul>
                             </div>
                         </div>
                         <div class="uk-child-width-1-2" id="old-changelog" uk-grid hidden>
+                            <div>
+                                <div class="uk-card uk-card-body uk-box-shadow-large uk-card-small">
+                                    <h3 class="uk-card-title">v2.9</h3>
+                                    <ul>
+                                        <li>Added F13 to F24.</li>
+                                        <li>Added experimental keys which allows you to use all avaliable keycodes in the firmware.</li>
+                                        <li>Added a macro limit indicator.</li>
+                                    </ul>
+                                </div>
+                            </div>
                             <div>
                                 <div class="uk-card uk-card-body uk-box-shadow-large uk-card-small">
                                     <h3 class="uk-card-title">v2.8</h3>
@@ -352,7 +365,38 @@
                             keyName[binding_key] }}</p>
                     </div>
                     <div class="row" v-for="(keys, index) in fullKeyboard" :row="index">
-                        <div v-for="key in keys" class="key-border key small" v-if="key.code!=null && (selected_key_layer == 0 || (key.code != 'FN' && key.code != 'PN' && key.code != 'FN1'))"
+                        <div v-for="key in keys" v-if="key.code == null" :class="['fk-space', 'fk-'+key.type]"></div>
+                        <div v-else-if="selected_key_layer != 0 && key.code != 'FN' && key.code != 'PN' && key.code != 'FN1'"
+                            class="key-border key small"
+                            @click="binding_key=key.code" :class="['fk-'+key.type, {selected: binding_key == key.code}]">
+                            <div class="key-container">
+                                <div class="key-legend-main">
+                                    <span v-html="keyLegend[key.code]"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else-if="selected_key_layer == 0 && (key.code == 'FN' || key.code == 'PN' || key.code == 'FN1') && currentProfileNumModifier(key.code) >= 4"
+                            class="key-border key small"
+                            :class="['fk-'+key.type, {selected: binding_key == key.code}]"
+                            uk-tooltip="You can not set a modifier onto more than 4 keys"
+                            >
+                            <div class="key-container">
+                                <div class="key-legend-main">
+                                    <span v-html="keyLegend[key.code]"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else-if="selected_key_layer == 0 && (key.code == 'FN' || key.code == 'PN' || key.code == 'FN1')"
+                            class="key-border key small"
+                            @click="binding_key=key.code" :class="['fk-'+key.type, {selected: binding_key == key.code}]">
+                            <div class="key-container">
+                                <div class="key-legend-main">
+                                    <span v-html="keyLegend[key.code]"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else-if="selected_key_layer == 0 && (key.code != 'FN' && key.code != 'PN' && key.code != 'FN1')"
+                            class="key-border key small"
                             @click="binding_key=key.code" :class="['fk-'+key.type, {selected: binding_key == key.code}]">
                             <div class="key-container">
                                 <div class="key-legend-main">
@@ -361,9 +405,28 @@
                             </div>
                         </div>
                         <div v-else :class="['fk-space', 'fk-'+key.type]"></div>
+                        <!-- <div v-for="key in keys" v-if="key.code!=null && (selected_key_layer == 0 || (key.code != 'FN' && key.code != 'PN' && key.code != 'FN1'))"
+                            @click="binding_key=key.code" :class="['fk-'+key.type, {selected: binding_key == key.code}]">
+                            <div class="key-container">
+                                <div class="key-legend-main">
+                                    <span v-html="keyLegend[key.code]"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else :class="['fk-space', 'fk-'+key.type]"></div> -->
                     </div>
                 </div>
                 <div class="uk-margin" uk-overflow-auto>
+                    <div class="uk-inline">
+                        <div class="macro-selection-border uk-box-shadow-medium uk-box-shadow-hover-large uk-padding-small"
+                            @click="newMacro(true)">
+                            <div class="uk-text-meta">
+                                <i class="fas fa-plus"></i>
+                                <span>Create</span>
+                            </div>
+                            <div class="macro-title uk-text-lead">New Macro</div>
+                        </div>
+                    </div>
                     <div v-for="(macro, index) in macros" class="uk-inline">
                         <div class="macro-selection-border uk-box-shadow-medium uk-box-shadow-hover-large uk-padding-small"
                             :class="{'uk-card-primary':binding_key == 'Macro' && binding_macro == macro.id }"
@@ -409,8 +472,7 @@
                                 <option v-for="key in hiddenKeyCode" v-bind:value="key">{{ keyName[key] }}</option>
                             </select>
                
-                            <div class="key-border key small fk-1x1" :class="{selected: hiddenKeyCode.indexOf(binding_key) >= 0}"
-                                @click="">
+                            <div class="key-border key small fk-1x1" :class="{selected: hiddenKeyCode.indexOf(binding_key) >= 0}">
                                 <div class="key-container">
                                     <div class="key-legend-main">
                                         <span><i class="fas fa-flask"></i></span>
@@ -425,30 +487,34 @@
 
             <div id="macro-modal" class="key-selector uk-flex-top uk-modal-container" uk-modal>
                 <div v-if="editing_macro" class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
-                    <div class="fullKeyboard">
-                        <div class="uk-margin">
-                            <input class="uk-input uk-form-width-large uk-form-large" type="text" @change="editing_macro.title=$event.target.value" :value="editing_macro.title"
+                    <div>
+                        <div style="margin-left: 20px; margin-right: 20px">
+                            Name
+                            <input class="uk-input uk-form-width-large" type="text" @change="editing_macro.title=$event.target.value" :value="editing_macro.title"
+                                style="margin-left: 5px;"
                                 :class="{'uk-form-danger': editing_macro.title.length == 0}" placeholder="Macro Name" autofocus>
-                        </div>
-                        <div>
-                            <div class="uk-subnav uk-subnav-pill" style="margin: 20px">
-                                <li @click="editing_macro.type = 1" :class="{'uk-active': editing_macro.type == 1}"><a
-                                        class="uk-box-shadow-small uk-box-shadow-hover-medium">Once</a></li>
-                                <li @click="editing_macro.type = 2" :class="{'uk-active': editing_macro.type == 2}"><a
-                                        class="uk-box-shadow-small uk-box-shadow-hover-medium">Until Release</a></li>
-                                <li @click="editing_macro.type = 3" :class="{'uk-active': editing_macro.type == 3}"><a
-                                        class="uk-box-shadow-small uk-box-shadow-hover-medium">Toggle</a></li>
-                                <li @click="editing_macro.type = 4" :class="{'uk-active': editing_macro.type == 4}"><a
-                                        class="uk-box-shadow-small uk-box-shadow-hover-medium">Repeat</a></li>
-          
-                                    <input v-if="editing_macro.type == 4"
-                                        :value="editing_macro.repeats" type="text"
-                                        @change="setRepeats($event)"
-                                        class="uk-input uk-form-width-medium uk-form-small uk-form-width-xsmall repeats-input"
-                                    >
-                           
+                            <div class="uk-align-right">
+                                <button v-if="!new_macro" @click="removeMacro()" class="uk-button uk-button-danger">Delete</button>
                             </div>
                         </div>
+                        <div class="uk-subnav uk-subnav-pill" style="margin: 20px">
+                            Type
+                            <li @click="editing_macro.type = 1" :class="{'uk-active': editing_macro.type == 1}"><a
+                                    class="uk-box-shadow-small uk-box-shadow-hover-medium">Once</a></li>
+                            <li @click="editing_macro.type = 2" :class="{'uk-active': editing_macro.type == 2}"><a
+                                    class="uk-box-shadow-small uk-box-shadow-hover-medium">Until Release</a></li>
+                            <li @click="editing_macro.type = 3" :class="{'uk-active': editing_macro.type == 3}"><a
+                                    class="uk-box-shadow-small uk-box-shadow-hover-medium">Toggle</a></li>
+                            <li @click="editing_macro.type = 4" :class="{'uk-active': editing_macro.type == 4}"><a
+                                    class="uk-box-shadow-small uk-box-shadow-hover-medium">Repeat</a></li>
+                                <input v-if="editing_macro.type == 4"
+                                    :value="editing_macro.repeats" type="text"
+                                    @change="setRepeats($event)"
+                                    class="uk-input uk-form-width-medium uk-form-small uk-form-width-xsmall repeats-input"
+                                >
+                        </div>
+                    </div>
+                    <div class="fullKeyboard">
                         <div class="row" v-for="(keys, index) in fullKeyboard" :row="index">
                             <div v-for="key in keys" class="key-border key small" v-if="key.code!=null && key.code != 'FN' && key.code != 'PN' && key.code != 'FN1' && key.code != '0'"
                                 @click="newEvent(key.code)" :class="['fk-'+key.type]">
@@ -462,7 +528,7 @@
                         </div>
                     </div>
                     <draggable v-model="editing_macro.events" id="macro-list" class="uk-margin macro-event-list" :options="{handle: '.macro-event', animation: 200}" uk-overflow-auto>
-                        <div v-for="(event, index) in editing_macro.events" class="macro-event-container">
+                        <div v-for="(event, index) in editing_macro.events" class="macro-event-container" :uk-tooltip="hiddenKeyCode.indexOf(event.code) < 0 ? false : keyName[event.code]">
                             <div class="macro-event uk-visible-toggle" :class="{down: event.event == 1, up: event.event == 0}">
                                 <div class="key-container" style="width: 12mm">
                                     <div class="key-legend-main" v-html="keyLegend[event.code]"></div>
@@ -485,11 +551,23 @@
                         </div>
                     </draggable>
                     <div class="uk-margin">
-                        <button class="uk-button uk-button-primary" :disabled="editing_macro.title.length == 0 || editing_macro.events.length ==0" @click="saveMacro()">Confirm</button>
-                        <button class="uk-button uk-button-default uk-modal-close" :class="[{'uk-button-danger': new_macro}]">Cancel</button>
+                        <button class="uk-button uk-button-primary" :disabled="editing_macro.title.length == 0 || editing_macro.events.length ==0" @click="saveMacro()">SAVE</button>
+                        <button class="uk-button uk-button-default" :class="[{'uk-button-danger': new_macro}]" @click="cancelMacro()">Cancel</button>
                         <span class="uk-margin uk-text-meta">You can drag each key event to change its order.</span>
                         <div class="uk-align-right">
-                            <button v-if="!new_macro" @click="removeMacro()" class="uk-button uk-button-danger">Delete</button>
+                            <div class="key-form-custom" uk-form-custom uk-tooltip="All other keycodes that are not listed above.">
+                                <select class="uk-select uk-form-width-medium" @change="(e) => {newEvent(e.target.value); e.target.value = null;}">
+                                    <option v-for="key in hiddenKeyCode" v-bind:value="key" :selected='false'>{{ keyName[key] }}</option>
+                                </select>
+                   
+                                <div class="key-border key small fk-1x1">
+                                    <div class="key-container">
+                                        <div class="key-legend-main">
+                                            <span><i class="fas fa-flask"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

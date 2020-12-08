@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.16/css/uikit.min.css" />
-    <link rel="stylesheet" href="css/muchpc.css?2.9" />
+    <link rel="stylesheet" href="css/muchpc.css?3.0" />
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.16/js/uikit.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.16/js/uikit-icons.min.js"></script>
@@ -27,9 +27,17 @@
             <nav class="uk-navbar-container uk-box-shadow-medium" uk-navbar>
                 <div class="uk-navbar-left">
                     <a class="uk-navbar-item uk-logo">TsFreddie's MPC</a>
-                    <div class="uk-navbar-item uk-text-meta"> Such Core, Much Programming</div>
-                    <a class="github-button" href="https://github.com/tsfreddie" data-size="large" aria-label="Follow @TsFreddie on GitHub">Follow
-                        @TsFreddie</a>
+                    <span>Locale <i class="fas fa-question-circle" uk-tooltip="Determines how keys are displayed. Won't affect keycode assigned."></i> :</span>
+                    <div class="key-form-custom" uk-form-custom style="margin-left: 5px;">
+                        <select class="uk-select uk-form-width-medium" v-model="locale" @change="(e) => {changeLocale(e.target.value);}">
+                            <option v-for="(locale, key) in keyLocales" v-bind:value="key">{{ locale.name }}</option>
+                        </select>
+           
+                        <button class="uk-button uk-button-default" type="button" tabindex="-1">
+                            <span>{{ keyLocales[locale].name }}</span>
+                            <span uk-icon="icon: chevron-down"></span>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="uk-navbar-right">
@@ -53,11 +61,9 @@
                 <button class="uk-button-small uk-button-default uk-box-shadow-small" @click="openFile(importFile)">Load JSON</button>
                 <button class="uk-button-small uk-button-default uk-box-shadow-small" @click="exportFile()">Save JSON</button>
                 
-                <span style="margin-left: 38%;">Generate Binary File</span>
-                <span><i class="fas fa-question-circle" uk-tooltip="If one of them has problems, try the other one."></i></span>
-                <span>:</span>
-                <button class="uk-button-small uk-button-primary uk-box-shadow-small" @click="generateOld()">Method A</button>
-                <button class="uk-button-small uk-button-primary uk-box-shadow-small" @click="generate()">Method B</button>
+                <span style="margin-left: 38%;">Generate Binary File <i class="fas fa-question-circle" uk-tooltip="If one of them has problems, try the other one."></i> :</span>
+                <button class="uk-button-small uk-button-primary uk-box-shadow-small" @click="generateOld()" uk-tooltip="The binary generation code directly from Vortexgear">Offical</button>
+                <button class="uk-button-small uk-button-primary uk-box-shadow-small" @click="generate()" uk-tooltip="My custom solution, might fix some problems">Custom</button>
             </div>
 
             <div id="container" class="uk-padding uk-padding-remove-top">
@@ -68,13 +74,13 @@
                             :class="['key-'+key.type, {selected: selected_key == key}]"
                             @click='selected_key = key; UIkit.tab("#tabs").show(2)'>
                             <div class="key-container">
-                                <span class="key-legend-main" v-html="keyLegend[key.profiles[active_profile].bind]"></span>
-                                <span class="key-legend-pn color-pn" v-html="key.profiles[active_profile].bind!='0' && key.profiles[active_profile].bind==key.profiles[active_profile].pn ? '\<i class=\'far fa-clone\'\>\</i\>' : keyLegend[key.profiles[active_profile].pn]">
+                                <span class="key-legend-main" v-html="keyDef[key.profiles[active_profile].bind].legend"></span>
+                                <span class="key-legend-pn color-pn" v-html="key.profiles[active_profile].bind!='0' && key.profiles[active_profile].bind==key.profiles[active_profile].pn ? '\<i class=\'far fa-clone\'\>\</i\>' : keyDef[key.profiles[active_profile].pn].legend">
                                 </span>
                             </div>
-                            <span class="key-legend-fn1 color-fn1" v-html="key.profiles[active_profile].bind!='0' && key.profiles[active_profile].bind==key.profiles[active_profile].fn1 ? '\<i class=\'far fa-clone\'\>\</i\>' : keyLegend[key.profiles[active_profile].fn1]">
+                            <span class="key-legend-fn1 color-fn1" v-html="key.profiles[active_profile].bind!='0' && key.profiles[active_profile].bind==key.profiles[active_profile].fn1 ? '\<i class=\'far fa-clone\'\>\</i\>' : keyDef[key.profiles[active_profile].fn1].legend">
                             </span>
-                            <span class="key-legend-fn color-fn" v-html="key.profiles[active_profile].bind!='0' && key.profiles[active_profile].bind==key.profiles[active_profile].fn ? '\<i class=\'far fa-clone\'\>\</i\>' : keyLegend[key.profiles[active_profile].fn]">
+                            <span class="key-legend-fn color-fn" v-html="key.profiles[active_profile].bind!='0' && key.profiles[active_profile].bind==key.profiles[active_profile].fn ? '\<i class=\'far fa-clone\'\>\</i\>' : keyDef[key.profiles[active_profile].fn].legend">
                             </span>
                         </div>
                     </div>
@@ -100,7 +106,9 @@
                 </ul>
                 <ul class="uk-switcher uk-margin">
                     <li>
-                        <h4>Programming Tool for Vortex CORE</h4>
+                        <a class="github-button" target="_blank" href="https://github.com/tsfreddie" data-size="large" aria-label="Follow @TsFreddie on GitHub">Follow
+                            @TsFreddie</a>
+                        <h4>Programming Tool for Vortex CORE <span class="uk-text-meta"> Such Core, Much Programming</span></h4>
                         <p>
                             <a class="uk-button uk-button-primary" target="_blank" href="http://www.vortexgear.tw/db/upload/webdata4/6vortex_201861271445393.exe">MPC
                                 firmware</a>
@@ -111,9 +119,28 @@
                             <div class="uk-card uk-card-body uk-box-shadow-medium uk-card-secondary uk-card-small">
                                 <h3 class="uk-card-title">v3.0</h3>
                                 <ul>
-                                    <li><b>Added a reversed engineered binary generation procedure (Method B), please let me know which one works for you on <a href="https://github.com/TsFreddie/much-programming-core/issues">Github</a>.</b></li>
-                                    <li>Now it is possible to create macro from keybinding window.</li>
-                                    <li>Added experimental keys to macros.</li>
+                                    <li><b>Added a custom binary generation procedure (The "Custom" Button). </b>
+                                        <ul>
+                                            <li>
+                                                Please let me know which one works or doesn't works for you on <a target="_blank" href="https://github.com/TsFreddie/much-programming-core/issues">Github</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li><b>Macro editor update</b>
+                                        <ul>
+                                            <li>Now it is possible to create macro from keybinding window.</li>
+                                            <li>Added experimental keys to macros.</li>
+                                            <li>Added buttons to quickly set all key event intervals in a macro.</li>
+                                        </ul>
+                                    </li>
+                                    <li><b>Minor fixes and changes:</b>
+                                        <ul>
+                                            <li>Updated keys with more descriptive labels</li>
+                                            <li>Allows more keys to be changed: Fn can now be swapped with other modifiers</li>
+                                            <li>Fixed the size of macro buttons in Firefox</li>
+                                            <li>Added some locale options</li>
+                                        </ul>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -286,13 +313,16 @@
                         </p>
                     </li>
                     <li>
-                        <div class="uk-margin">
-                            <button class="uk-button uk-button-small uk-button-primary" @click="newMacro()"><i class="fas fa-plus"></i> New</button>
-                            <button class="uk-button uk-button-small uk-button-default" uk-tooltip="Import macros from JSON file."
-                            @click="openFile(importMacros)"><i class="far fa-file"></i> Import</button>
-                            <span class="uk-align-right uk-text-meta">You can bind macros in Key Settings.</span>
+                        <div class="uk-child-width-1-2" uk-grid>
+                            <div>
+                                <button class="uk-button uk-button-small uk-button-primary" @click="newMacro()"><i class="fas fa-plus"></i> New</button>
+                                <button class="uk-button uk-button-small uk-button-default" uk-tooltip="Import macros from JSON file."
+                                @click="openFile(importMacros)"><i class="far fa-file"></i> Import</button>
+                            </div>
+                            <div>
+                                <span class="uk-align-right uk-text-meta">You can bind macros in Key Settings.</span>
+                            </div>                     
                         </div>
-                        
                         <div class="uk-child-width-1-4" uk-grid>
                             <div v-for="(macro, index) in macros">
                                 <div class="uk-card uk-card-small uk-card-default uk-card-body uk-visible-toggle">
@@ -309,9 +339,9 @@
                                     </ul>
                                     <div>
                                         <div v-for="code in previewMacro(macro).slice(0,6)"
-                                             class="key-border key small fk-1x1 key-non-interactive">
+                                                class="key-border key small fk-1x1 key-non-interactive">
                                             <div class="key-container">
-                                                <div class="key-legend-main" v-html="keyLegend[code]"></div>
+                                                <div class="key-legend-main" v-html="keyDef[code].legend"></div>
                                             </div>
                                         </div>
                                         <span v-if="previewMacro(macro).length > 6" class="macro-more">+{{ previewMacro(macro).length-6 }}</span>
@@ -324,18 +354,18 @@
                         <div v-if="!selected_key" class="uk-alert-primary" uk-alert>
                             Please select a key.
                         </div>
-                        <div v-else-if="selected_key.locked" class="uk-alert-danger" uk-alert>
-                            Sorry, this key cannot be changed.
-                        </div>
                         <div v-else class="uk-column-1-2">
-                            <p><span>Base Key: </span> <button class="uk-button uk-button-default" @click="bindKey(0)">{{
-                                    keyName[currentKeyProfile.bind] }}</button></p>
-                            <p v-if="currentKeyHasLayers"><span class="color-pn">Pn Layer: </span> <button class="uk-button uk-button-default"
-                                    @click="bindKey(1)">{{ keyName[currentKeyProfile.pn] }}</button></p>
-                            <p v-if="currentKeyHasLayers"><span class="color-fn">Fn Layer: </span> <button class="uk-button uk-button-default"
-                                    @click="bindKey(2)">{{ keyName[currentKeyProfile.fn] }}</button></p>
-                            <p v-if="currentKeyHasLayers"><span class="color-fn1">Fn1 Layer: </span> <button class="uk-button uk-button-default"
-                                    @click="bindKey(3)">{{ keyName[currentKeyProfile.fn1] }}</button></p>
+                            <p>
+                                <span>Base Key: </span>
+                                <button class="uk-button uk-button-default" @click="bindKey(0)">{{
+                                    keyDef[currentKeyProfile.bind].name }}</button>
+                            </p>
+                            <p><span class="color-fn">Fn Layer: </span> <button class="uk-button uk-button-default"
+                                    @click="bindKey(2)">{{ keyDef[currentKeyProfile.fn].name }}</button></p>
+                            <p><span class="color-pn">Pn Layer: </span> <button class="uk-button uk-button-default"
+                                    @click="bindKey(1)">{{ keyDef[currentKeyProfile.pn].name }}</button></p>
+                            <p><span class="color-fn1">Fn1 Layer: </span> <button class="uk-button uk-button-default"
+                                    @click="bindKey(3)">{{ keyDef[currentKeyProfile.fn1].name }}</button></p>
                         </div>
                     </li>
                     <li>
@@ -351,18 +381,46 @@
 
         <div id="key-selector-modal" class="key-selector uk-flex-top uk-modal-container" uk-modal>
             <div v-if="selected_key" class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
-                <div v-if="isUnbindable(currentKeyDefault) && currentKeyDefault == currentKeyBind" class="uk-alert-primary"
-                    uk-alert>
-                    If you change this key, it will lose the ability to {{ unbindableDesc(currentKeyDefault) }}.
+                <div v-if="selected_key.locked && selected_key_layer == 0" class="fullKeyboard">
+                    <div class="fk-title">
+                        <span class="uk-alert-primary uk-align-right" uk-alert>
+                            This key can only be a modifier.
+                        </span>
+                        <span class="uk-text-lead">
+                            <span v-if="this.selected_key_layer" :class='currentKeyLayerColor'>{{currentKeyLayerPrefix}}</span>
+                            <span v-if="this.selected_key_layer"> + </span>
+                            <span v-html="'[ ' + keyDef[currentKeyCode].legend + ' ]'"></span>
+                            <span style="color: #888888"><i class="fas fa-long-arrow-alt-right"></i></span>
+                            <span>{{ keyDef[binding_key].name }}</span>
+                        </span>
+                    </div>
+                    <div class="row" v-for="(keys, index) in fullKeyboard" :row="index">
+                        <div v-for="key in keys" v-if="key.code == 'FN' || key.code == 'PN' || key.code == 'FN1'"
+                            class="key-border key small"
+                            @click="binding_key=key.code" :class="['fk-'+key.type, {selected: binding_key == key.code}]">
+                            <div class="key-container">
+                                <div class="key-legend-main">
+                                    <span v-html="keyDef[key.code].legend"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div v-if="binding_key=='FN' || binding_key=='FN1' || binding_key=='PN'" class="uk-alert-primary"
-                    uk-alert>
-                    If you set this key as a modifier, you will lose other layers on this key.
-                </div>
-                <div class="fullKeyboard">
-                    <div class="prompt">
-                        <p class="uk-text-lead">Remap {{ currentKeyLayerPrefix + keyName[currentKeyCode] }} to {{
-                            keyName[binding_key] }}</p>
+                <div v-else class="fullKeyboard">
+                    <div class="fk-title">
+                        <span v-if="isUnbindable(currentKeyDefault) && currentKeyDefault == currentKeyBind" class="uk-alert-primary uk-align-right" uk-alert>
+                            If you change this key, it will lose the ability to {{ unbindableDesc(currentKeyDefault) }}.
+                        </span>
+                        <span v-if="binding_key=='FN' || binding_key=='FN1' || binding_key=='PN'" class="uk-alert-primary uk-align-right" uk-alert>
+                            If you set this key as a modifier, pn/fn/fn1 layers on this key might not work.
+                        </span>
+                        <span class="uk-text-lead">
+                            <span v-if="this.selected_key_layer" :class='currentKeyLayerColor'>{{currentKeyLayerPrefix}}</span>
+                            <span v-if="this.selected_key_layer"> + </span>
+                            <span v-html="'[ ' + keyDef[currentKeyCode].legend + ' ]'"></span>
+                            <span style="color: #888888"><i class="fas fa-long-arrow-alt-right"></i></span>
+                            <span>{{ keyDef[binding_key].name }}</span>
+                        </span>
                     </div>
                     <div class="row" v-for="(keys, index) in fullKeyboard" :row="index">
                         <div v-for="key in keys" v-if="key.code == null" :class="['fk-space', 'fk-'+key.type]"></div>
@@ -371,7 +429,7 @@
                             @click="binding_key=key.code" :class="['fk-'+key.type, {selected: binding_key == key.code}]">
                             <div class="key-container">
                                 <div class="key-legend-main">
-                                    <span v-html="keyLegend[key.code]"></span>
+                                    <span v-html="keyDef[key.code].legend"></span>
                                 </div>
                             </div>
                         </div>
@@ -382,7 +440,7 @@
                             >
                             <div class="key-container">
                                 <div class="key-legend-main">
-                                    <span v-html="keyLegend[key.code]"></span>
+                                    <span v-html="keyDef[key.code].legend"></span>
                                 </div>
                             </div>
                         </div>
@@ -391,7 +449,7 @@
                             @click="binding_key=key.code" :class="['fk-'+key.type, {selected: binding_key == key.code}]">
                             <div class="key-container">
                                 <div class="key-legend-main">
-                                    <span v-html="keyLegend[key.code]"></span>
+                                    <span v-html="keyDef[key.code].legend"></span>
                                 </div>
                             </div>
                         </div>
@@ -400,23 +458,14 @@
                             @click="binding_key=key.code" :class="['fk-'+key.type, {selected: binding_key == key.code}]">
                             <div class="key-container">
                                 <div class="key-legend-main">
-                                    <span v-html="keyLegend[key.code]"></span>
+                                    <span v-html="keyDef[key.code].legend"></span>
                                 </div>
                             </div>
                         </div>
                         <div v-else :class="['fk-space', 'fk-'+key.type]"></div>
-                        <!-- <div v-for="key in keys" v-if="key.code!=null && (selected_key_layer == 0 || (key.code != 'FN' && key.code != 'PN' && key.code != 'FN1'))"
-                            @click="binding_key=key.code" :class="['fk-'+key.type, {selected: binding_key == key.code}]">
-                            <div class="key-container">
-                                <div class="key-legend-main">
-                                    <span v-html="keyLegend[key.code]"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div v-else :class="['fk-space', 'fk-'+key.type]"></div> -->
                     </div>
                 </div>
-                <div class="uk-margin" uk-overflow-auto>
+                <div v-if="!selected_key.locked || selected_key_layer != 0" class="uk-margin" uk-overflow-auto>
                     <div class="uk-inline">
                         <div class="macro-selection-border uk-box-shadow-medium uk-box-shadow-hover-large uk-padding-small"
                             @click="newMacro(true)">
@@ -443,7 +492,7 @@
                                 <div v-for="code in previewMacro(macro).slice(0,6)"
                                         class="key-border key small fk-1x1 key-non-interactive">
                                     <div class="key-container">
-                                        <div class="key-legend-main" v-html="keyLegend[code]"></div>
+                                        <div class="key-legend-main" v-html="keyDef[code].legend"></div>
                                     </div>
                                 </div>
                                 <span v-if="previewMacro(macro).length > 6" class="macro-more">+{{ previewMacro(macro).length-6 }}</span>
@@ -462,14 +511,14 @@
                             @click="binding_key = currentKeyDefault;" uk-tooltip="There are no keycodes for this function. You can use this key to restore its original function.">
                             <div class="key-container">
                                 <div class="key-legend-main">
-                                    <span v-html="keyLegend[currentKeyDefault]"></span>
+                                    <span v-html="keyDef[currentKeyDefault].legend"></span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="key-form-custom" uk-form-custom uk-tooltip="All other keycodes that are not listed above.">
+                        <div v-if="!selected_key.locked || selected_key_layer != 0" class="key-form-custom" uk-form-custom uk-tooltip="All other keycodes that are not listed above.">
                             <select class="uk-select uk-form-width-medium" v-model="binding_key">
-                                <option v-for="key in hiddenKeyCode" v-bind:value="key">{{ keyName[key] }}</option>
+                                <option v-for="key in hiddenKeyCode" v-bind:value="key">0x{{key}}: {{ keyDef[key].name }}</option>
                             </select>
                
                             <div class="key-border key small fk-1x1" :class="{selected: hiddenKeyCode.indexOf(binding_key) >= 0}">
@@ -520,7 +569,7 @@
                                 @click="newEvent(key.code)" :class="['fk-'+key.type]">
                                 <div class="key-container">
                                     <div class="key-legend-main">
-                                        <span v-html="keyLegend[key.code]"></span>
+                                        <span v-html="keyDef[key.code].legend"></span>
                                     </div>
                                 </div>
                             </div>
@@ -528,10 +577,10 @@
                         </div>
                     </div>
                     <draggable v-model="editing_macro.events" id="macro-list" class="uk-margin macro-event-list" :options="{handle: '.macro-event', animation: 200}" uk-overflow-auto>
-                        <div v-for="(event, index) in editing_macro.events" class="macro-event-container" :uk-tooltip="hiddenKeyCode.indexOf(event.code) < 0 ? false : keyName[event.code]">
+                        <div v-for="(event, index) in editing_macro.events" class="macro-event-container" :uk-tooltip="hiddenKeyCode.indexOf(event.code) < 0 ? false : keyDef[event.code].name">
                             <div class="macro-event uk-visible-toggle" :class="{down: event.event == 1, up: event.event == 0}">
                                 <div class="key-container" style="width: 12mm">
-                                    <div class="key-legend-main" v-html="keyLegend[event.code]"></div>
+                                    <div class="key-legend-main" v-html="keyDef[event.code].legend"></div>
             
                                     <a class="uk-invisible-hover uk-text-danger" @click="removeEvent(index)"><i class="fas fa-minus-circle"></i></a>
                                     <span style="margin-left: 9px">
@@ -555,11 +604,18 @@
                         <button class="uk-button uk-button-default" :class="[{'uk-button-danger': new_macro}]" @click="cancelMacro()">Cancel</button>
                         <span class="uk-margin uk-text-meta">You can drag each key event to change its order.</span>
                         <div class="uk-align-right">
+                            <div v-for="i in [10, 15, 100, 250, 500]" class="key-border key small fk-1x1"  @click="setAllTimer(i)" :uk-tooltip="'Set all interval to '+i+'ms'">
+                                <div class="key-container">
+                                    <div class="key-legend-main">
+                                        <span style="font-size: 11px;">{{i}}ms</span>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="key-form-custom" uk-form-custom uk-tooltip="All other keycodes that are not listed above.">
                                 <select class="uk-select uk-form-width-medium" @change="(e) => {newEvent(e.target.value); e.target.value = null;}">
-                                    <option v-for="key in hiddenKeyCode" v-bind:value="key" :selected='false'>{{ keyName[key] }}</option>
+                                    <option v-for="key in hiddenKeyCode" v-bind:value="key" :selected='false'>0x{{key}}: {{ keyDef[key].name }}</option>
                                 </select>
-                   
+                                
                                 <div class="key-border key small fk-1x1">
                                     <div class="key-container">
                                         <div class="key-legend-main">
@@ -575,7 +631,7 @@
         </div>
         <input id="importFile" type="file" hidden>
     </div>
-    <script src="js/muchpc.js?2.9"></script>
+    <script src="js/muchpc.js?3.0"></script>
 </body>
 
 </html>

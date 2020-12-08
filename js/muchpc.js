@@ -30,462 +30,283 @@ const special_keys = {
     'L3': {targetKey: '13', targetLayer: 'FN'},
 };
 
-const ktmName = [
-    'G9(L_Space)', 'R_ALT', 'ESC', 'Q', 'TAB', 'A', 'L_SHIFT', 'Z',
-    'G15', 'PN', 'W', 'E', 'S', 'D', 'X', 'C',
-    'L_ALT', 'G13', 'R', 'T', 'F', 'G', 'V', 'B',
-    'G10(Fn1)', 'G16(FN)', 'Y', 'U', 'H', 'J', 'N', 'M',
-    'ENTER', 'L_CTRL', 'I', 'O', 'K', 'L', 'COMMA', 'DOT',
-    'BACKSPACE', 'L_WIN', 'P', 'R_CTRL', 'SEMICOLON', 'DEL', 'FN0', 'R_SHIFT',
-    'SPACE', 'G11', 'NOTHING'
-];
-
-const keyName = {
-    '0': 'NOTHING',
-    '1': 'ERR_RO',
-    '2': 'POST_FAIL',
-    '3': 'UNDEFINED',
-    '4': 'A',
-    '5': 'B',
-    '6': 'C',
-    '7': 'D',
-    '8': 'E',
-    '9': 'F',
-    'A': 'G',
-    'B': 'H',
-    'C': 'I',
-    'D': 'J',
-    'E': 'K',
-    'F': 'L',
-    '10': 'M',
-    '11': 'N',
-    '12': 'O',
-    '13': 'P',
-    '14': 'Q',
-    '15': 'R',
-    '16': 'S',
-    '17': 'T',
-    '18': 'U',
-    '19': 'V',
-    '1A': 'W',
-    '1B': 'X',
-    '1C': 'Y',
-    '1D': 'Z',
-    '1E': '1',
-    '1F': '2',
-    '20': '3',
-    '21': '4',
-    '22': '5',
-    '23': '6',
-    '24': '7',
-    '25': '8',
-    '26': '9',
-    '27': '0',
-    '28': 'ENTER',
-    '29': 'ESC',
-    '2A': 'BACKSPACE',
-    '2B': 'TAB',
-    '2C': 'SPACE',
-    '2D': 'NEG',
-    '2E': 'EQUATION',
-    '2F': 'L_BRACKETS',
-    '30': 'R_BRACKETS',
-    '31': 'BACKSLASH',
-    '32': 'CODE42',
-    '33': 'SEMICOLON',
-    '34': 'APOSTROPHE',
-    '35': 'TILDE',
-    '36': 'COMMA',
-    '37': 'DOT',
-    '38': 'SLASH',
-    '39': 'CAP',
-    '3A': 'F1',
-    '3B': 'F2',
-    '3C': 'F3',
-    '3D': 'F4',
-    '3E': 'F5',
-    '3F': 'F6',
-    '40': 'F7',
-    '41': 'F8',
-    '42': 'F9',
-    '43': 'F10',
-    '44': 'F11',
-    '45': 'F12',
-    '46': 'PRINT',
-    '47': 'SCROLL',
-    '48': 'PAUSE',
-    '49': 'INSERT',
-    '4A': 'HOME',
-    '4B': 'PGUP',
-    '4C': 'DEL',
-    '4D': 'END',
-    '4E': 'PGDN',
-    '4F': 'R_ARROW',
-    '50': 'L_ARROW',
-    '51': 'DN_ARROW',
-    '52': 'UP_ARROW',
-    '53': 'NUM_LOCK',
-    '54': 'NUM_DIV',
-    '55': 'NUM_STAR',
-    '56': 'NUM_NEG',
-    '57': 'NUM_PLUS',
-    '58': 'NUM_ENTER',
-    '59': 'NUM_1',
-    '5A': 'NUM_2',
-    '5B': 'NUM_3',
-    '5C': 'NUM_4',
-    '5D': 'NUM_5',
-    '5E': 'NUM_6',
-    '5F': 'NUM_7',
-    '60': 'NUM_8',
-    '61': 'NUM_9',
-    '62': 'NUM_0',
-    '63': 'NUM_DOT',
-    '64': 'CODE45',
-    '65': 'MENU',
-    '66': 'POWER',
-    '67': 'EQUAL',
-    '68': 'F13',
-    '69': 'F14',
-    '6A': 'F15',
-    '6B': 'F16',
-    '6C': 'F17',
-    '6D': 'F18',
-    '6E': 'F19',
-    '6F': 'F20',
-    '70': 'F21',
-    '71': 'F22',
-    '72': 'F23',
-    '73': 'F24',
-    '74': 'KB_EXECUTE',
-    '75': 'KB_HELP',
-    '76': 'KB_MENU',
-    '77': 'KB_SELECT',
-    '78': 'KB_STOP',
-    '79': 'KB_AGAIN',
-    '7A': 'KB_UNDO',
-    '7B': 'KB_CUT',
-    '7C': 'KB_COPY',
-    '7D': 'KB_PASTE',
-    '7E': 'KB_FIND',
-    '7F': 'KB_MUTE',
-    '80': 'KB_VOL_UP',
-    '81': 'KB_VOL_DN',
-    '82': 'LOCCAP',
-    '83': 'LOCNUM',
-    '84': 'LOCSCR',
-    '85': 'CODE107',
-    '86': '0x086',
-    '87': 'CODE56',
-    '88': 'CODE133',
-    '89': 'CODE14',
-    '8A': 'CODE132',
-    '8B': 'CODE131',
-    '90': 'CODE151',
-    '91': 'CODE150',
-    'B0': 'MOUSE_KEY1',
-    'B1': 'MOUSE_KEY2',
-    'B2': 'MOUSE_KEY3',
-    'B3': 'MOUSE_KEY4',
-    'B4': 'MOUSE_KEY5',
-    'B5': 'MOUSE_KEY6',
-    'B6': 'MOUSE_KEY7',
-    'B7': 'MOUSE_KEY8',
-    'B8': 'MOUSE_KEY9',
-    'B9': 'MOUSE_KEY10',
-    'BA': 'MOUSE_KEY11',
-    'BB': 'MOUSE_KEY12',
-    'BC': 'MOUSE_KEY13',
-    'BD': 'MOUSE_KEY14',
-    'BE': 'MOUSE_KEY15',
-    'BF': 'MOUSE_KEY16',
-    'C0': 'G1',
-    'C1': 'G2',
-    'C2': 'G3',
-    'C3': 'G4',
-    'C4': 'G5',
-    'C5': 'G6',
-    'C6': 'G7',
-    'C7': 'G8',
-    'C8': 'G9', // L_Space
-    'C9': 'G10(Fn1)',
-    'CA': 'G11',
-    'CB': 'G12',
-    'CC': 'G13',
-    'CD': 'G14',
-    'CE': 'G15',
-    'CF': 'G16(FN)',
-    'D0': 'G17',
-    'D1': 'G18',
-    'D2': 'G19',
-    'D3': 'G20',
-    'D4': 'G21',
-    'D5': 'G22',
-    'D6': 'G23',
-    'D7': 'G24',
-    'E0': 'L_CTRL',
-    'E1': 'L_SHIFT',
-    'E2': 'L_ALT',
-    'E3': 'L_WIN',
-    'E4': 'R_CTRL',
-    'E5': 'R_SHIFT',
-    'E6': 'R_ALT',
-    'E7': 'R_WIN',
-    'E9': 'ACPI_PD',
-    'EA': 'ACPI_SLEEP',
-    'EB': 'ACPI_WAKE',
-    'EC': 'MEDIA_SEL',
-    'ED': 'MAIL',
-    'EE': 'CALCULATOR',
-    'EF': 'MYCOMPUTER',
-    'F0': 'PLAY_PAUSE',
-    'F1': 'STOP',
-    'F2': 'PRE_TRACK',
-    'F3': 'NEXT_TRACK',
-    'F4': 'MUTE',
-    'F5': 'VOL_DEC',
-    'F6': 'VOL_INC',
-    'F7': 'W3SEARCH',
-    'F8': 'W3HOME',
-    'F9': 'W3BACK',
-    'FA': 'W3FORWARD',
-    'FB': 'W3STOP',
-    'FC': 'W3REFRESH',
-    'FD': 'W3FAVORITE',
-    // Cheating keycode
-    'FN': 'FN MODIFIER',
-    'PN': 'PN MODIFIER',
-    'FN1': 'FN1 MODIFIER',
-    'Light': 'RGB CONTROL',
-    'L0': 'SWITCH TO L0',
-    'L1': 'SWITCH TO L1',
-    'L2': 'SWITCH TO L2',
-    'L3': 'SWITCH TO L3',
-    'Macro': 'MACRO',
+const keyLocales = {
+    us: {
+        name: 'QWERTY (US)',
+    },
+    de: {
+        name: 'QWERTY (German)',
+    },
+    jp: {
+        name: 'QWERTY (Japanese)'
+    },
+    colemak: {
+        name: 'Colemak (US)',
+    },
+    dvorak: {
+        name: 'Dvorak (US)',
+    },
+    dvorakl: {
+        name: 'Dvorak Left-handed (US)',
+    },
+    dvorakr: {
+        name: 'Dvorak Right-handed (US)',
+    },
 };
 
-const keyLegend = {
-    '0': '',
-    '1': 'ERR_RO',
-    '2': 'POST_FAIL',
-    '3': 'UNDEFINED',
-    '4': 'A',
-    '5': 'B',
-    '6': 'C',
-    '7': 'D',
-    '8': 'E',
-    '9': 'F',
-    'A': 'G',
-    'B': 'H',
-    'C': 'I',
-    'D': 'J',
-    'E': 'K',
-    'F': 'L',
-    '10': 'M',
-    '11': 'N',
-    '12': 'O',
-    '13': 'P',
-    '14': 'Q',
-    '15': 'R',
-    '16': 'S',
-    '17': 'T',
-    '18': 'U',
-    '19': 'V',
-    '1A': 'W',
-    '1B': 'X',
-    '1C': 'Y',
-    '1D': 'Z',
-    '1E': '! 1',
-    '1F': '\@ 2',
-    '20': '\# 3',
-    '21': '\$ 4',
-    '22': '\% 5',
-    '23': '^ 6',
-    '24': '\& 7',
-    '25': '* 8',
-    '26': '( 9',
-    '27': ') 0',
-    '28': 'Enter',
-    '29': 'ESC',
-    '2A': '<i class="fas fa-backspace"></i>',
-    '2B': 'Tab',
-    '2C': 'Space',
-    '2D': '_ -',
-    '2E': '+ =',
-    '2F': '{ [',
-    '30': '} ]',
-    '31': '| \\',
-    '32': 'CODE42',     // ??
-    '33': ': \;',
-    '34': '\" \'',
-    '35': '~ `',
-    '36': '&lt ,',
-    '37': '&gt .',
-    '38': '? /',
-    '39': 'Caps',
-    '3A': 'F1',
-    '3B': 'F2',
-    '3C': 'F3',
-    '3D': 'F4',
-    '3E': 'F5',
-    '3F': 'F6',
-    '40': 'F7',
-    '41': 'F8',
-    '42': 'F9',
-    '43': 'F10',
-    '44': 'F11',
-    '45': 'F12',
-    '46': 'Prtsc',
-    '47': 'Scrlk',
-    '48': 'Pause',
-    '49': 'Ins',
-    '4A': 'Home',
-    '4B': 'PgUp',
-    '4C': 'Del',
-    '4D': 'End',
-    '4E': 'PgDn',
-    '4F': '<i class="fas fa-arrow-right"></i>',
-    '50': '<i class="fas fa-arrow-left"></i>',
-    '51': '<i class="fas fa-arrow-down"></i>',
-    '52': '<i class="fas fa-arrow-up"></i>',
-    '53': 'Numlk',
-    '54': '/',
-    '55': '*',
-    '56': '-',
-    '57': '+',
-    '58': 'Ret',
-    '59': '1',
-    '5A': '2',
-    '5B': '3',
-    '5C': '4',
-    '5D': '5',
-    '5E': '6',
-    '5F': '7',
-    '60': '8',
-    '61': '9',
-    '62': '0',
-    '63': '.',
-    '64': 'CODE45',     // ??
-    '65': '<i class="fas fa-bars"></i>',
-    '66': 'POWER',      // ??
-    '67': 'EQUAL',      // ??
-    '68': 'F13',
-    '69': 'F14',
-    '6A': 'F15',
-    '6B': 'F16',
-    '6C': 'F17',
-    '6D': 'F18',
-    '6E': 'F19',
-    '6F': 'F20',
-    '70': 'F21',
-    '71': 'F22',
-    '72': 'F23',
-    '73': 'F24',
-    '74': 'KB_EXECUTE', // ??
-    '75': 'KB_HELP',    // ??
-    '76': 'KB_MENU',    // ??
-    '77': 'KB_SELECT',  // ??
-    '78': 'KB_STOP',    // ??
-    '79': 'KB_AGAIN',   // ??
-    '7A': 'KB_UNDO',    // ??
-    '7B': 'KB_CUT',     // ??
-    '7C': 'KB_COPY',    // ??
-    '7D': 'KB_PASTE',   // ??
-    '7E': 'KB_FIND',    // ??
-    '7F': 'KB_MUTE',    // ??
-    '80': 'KB_VOL_UP',  // ??
-    '81': 'KB_VOL_DN',  // ??
-    '82': 'LOCCAP',     // ??
-    '83': 'LOCNUM',     // ??
-    '84': 'LOCSCR',     // ??
-    '85': 'CODE107',    // ??
-    '86': '0x086',      // ??
-    '87': 'CODE56',     // ??
-    '88': 'CODE133',    // ??a
-    '89': 'CODE14',     // ??
-    '8A': 'CODE132',    // ??
-    '8B': 'CODE131',    // ?? 8C-8F?
-    '90': 'CODE151',    // ??
-    '91': 'CODE150',    // ?? 92-9F?
-    'B0': 'MOUSE_KEY1', // ??
-    'B1': 'MOUSE_KEY2', // ??
-    'B2': 'MOUSE_KEY3', // ??
-    'B3': 'MOUSE_KEY4', // ??
-    'B4': 'MOUSE_KEY5', // ??
-    'B5': 'MOUSE_KEY6', // ??
-    'B6': 'MOUSE_KEY7', // ??
-    'B7': 'MOUSE_KEY8', // ??
-    'B8': 'MOUSE_KEY9', // ??
-    'B9': 'MOUSE_KEY10',// ??
-    'BA': 'MOUSE_KEY11',// ??
-    'BB': 'MOUSE_KEY12',// ??
-    'BC': 'MOUSE_KEY13',// ??
-    'BD': 'MOUSE_KEY14',// ??
-    'BE': 'MOUSE_KEY15',// ??
-    'BF': 'MOUSE_KEY16',// ??
-    'C0': 'G1',         // ??
-    'C1': 'G2',         // ??
-    'C2': 'G3',         // ??
-    'C3': 'G4',         // ??
-    'C4': 'G5',         // ??
-    'C5': 'G6',         // ??
-    'C6': 'G7',         // ??
-    'C7': 'G8',         // ??
-    'C8': 'G9',         // ??
-    'C9': 'G10',        // ??
-    'CA': 'G11',        // ??
-    'CB': 'G12',        // ??
-    'CC': 'G13',        // ??
-    'CD': 'G14',        // ??
-    'CE': 'G15',        // ??
-    'CF': 'G16',        // ??
-    'D0': 'G17',        // ??
-    'D1': 'G18',        // ??
-    'D2': 'G19',        // ??
-    'D3': 'G20',        // ??
-    'D4': 'G21',        // ??
-    'D5': 'G22',        // ??
-    'D6': 'G23',        // ??
-    'D7': 'G24',        // ?? D8-DF?
-    'E0': 'Ctrl',
-    'E1': 'Shift',
-    'E2': 'Alt',
-    'E3': 'Sys',
-    'E4': 'Ctrl',
-    'E5': 'Shift',
-    'E6': 'Alt',
-    'E7': 'Sys',
-    'E9': 'ACPI_PD',    // ??
-    'EA': 'ACPI_SLEEP', // ??
-    'EB': 'ACPI_WAKE',  // ??
-    'EC': 'MEDIA_SEL',  // ??
-    'ED': '<i class="fas fa-envelope"></i>',
-    'EE': '<i class="fas fa-calculator"></i>',
-    'EF': '<i class="fas fa-desktop"></i>',
-    'F0': '<i class="fas fa-play"></i>',
-    'F1': '<i class="fas fa-stop"></i>',
-    'F2': '<i class="fas fa-step-backward"></i>',
-    'F3': '<i class="fas fa-step-forward"></i>',
-    'F4': '<i class="fas fa-volume-off"></i>',
-    'F5': '<i class="fas fa-volume-down"></i>',
-    'F6': '<i class="fas fa-volume-up"></i>',
-    'F7': '<i class="fas fa-search"></i>',
-    'F8': '<i class="fas fa-home"></i>',
-    'F9': '<i class="fas fa-arrow-alt-circle-left"></i>',
-    'FA': '<i class="fas fa-arrow-alt-circle-right"></i>',
-    'FB': '<i class="fas fa-ban"></i>',
-    'FC': '<i class="fas fa-sync-alt"></i>',
-    'FD': '<i class="fas fa-heart"></i>',      // FE-FF?
+const keyDef = {
+    '0': { name: 'Nothing', legend: '' },
+    '1': { name: 'Error Roll Over', legend: 'x01' },
+    '2': { name: 'POST Fail', legend: 'x02' },
+    '3': { name: 'Error Undefined', legend: 'x03' },
+    '4': { name: 'A', legend: 'A' },
+    '5': { name: 'B', legend: 'B' },
+    '6': { name: 'C', legend: 'C' },
+    '7': { name: 'D', legend: 'D' },
+    '8': { name: 'E', legend: 'E' },
+    '9': { name: 'F', legend: 'F' },
+    'A': { name: 'G', legend: 'G' },
+    'B': { name: 'H', legend: 'H' },
+    'C': { name: 'I', legend: 'I' },
+    'D': { name: 'J', legend: 'J' },
+    'E': { name: 'K', legend: 'K' },
+    'F': { name: 'L', legend: 'L' },
+    '10': { name: 'M', legend: 'M' },
+    '11': { name: 'N', legend: 'N' },
+    '12': { name: 'O', legend: 'O' },
+    '13': { name: 'P', legend: 'P' },
+    '14': { name: 'Q', legend: 'Q' },
+    '15': { name: 'R', legend: 'R' },
+    '16': { name: 'S', legend: 'S' },
+    '17': { name: 'T', legend: 'T' },
+    '18': { name: 'U', legend: 'U' },
+    '19': { name: 'V', legend: 'V' },
+    '1A': { name: 'W', legend: 'W' },
+    '1B': { name: 'X', legend: 'X' },
+    '1C': { name: 'Y', legend: 'Y' },
+    '1D': { name: 'Z', legend: 'Z' },
+    '1E': { name: 'Top Row 1', legend: '1<b style="font-size: 80%;"> !</b>' },
+    '1F': { name: 'Top Row 2', legend: '2<b style="font-size: 80%;"> @</b>' },
+    '20': { name: 'Top Row 3', legend: '3<b style="font-size: 80%;"> #</b>' },
+    '21': { name: 'Top Row 4', legend: '4<b style="font-size: 80%;"> $</b>' },
+    '22': { name: 'Top Row 5', legend: '5<b style="font-size: 80%;"> %</b>' },
+    '23': { name: 'Top Row 6', legend: '6<b style="font-size: 80%;"> ^</b>' },
+    '24': { name: 'Top Row 7', legend: '7<b style="font-size: 80%;"> &amp;</b>' },
+    '25': { name: 'Top Row 8', legend: '8<b style="font-size: 80%;"> *</b>' },
+    '26': { name: 'Top Row 9', legend: '9<b style="font-size: 80%;"> (</b>' },
+    '27': { name: 'Top Row 0', legend: '0<b style="font-size: 80%;"> )</b>' },
+    '28': { name: 'Return / Enter', legend: 'Enter' },
+    '29': { name: 'Escape', legend: 'ESC' },
+    '2A': { name: 'Backspace', legend: '<i class="fas fa-backspace"></i>' },
+    '2B': { name: 'Tab', legend: 'Tab' },
+    '2C': { name: 'Spacebar', legend: 'Space' },
+    '2D': { name: 'Minus & Underscore (- _)', legend: '-<b style="font-size: 80%;"> _</b>' },
+    '2E': { name: 'Equal & Plus (= +)', legend: '=<b style="font-size: 80%;"> +</b>' },
+    '2F': { name: 'Left Bracket & Brace ([ {)', legend: '[<b style="font-size: 80%;"> {</b>' },
+    '30': { name: 'Right Bracket & Brace (] })', legend: ']<b style="font-size: 80%;"> }</b>' },
+    '31': { name: 'Backslash & Vertical Bar (\\ |)', legend: '\\<b style="font-size: 80%;"> |</b>' },
+    '32': { name: 'Non-US Pound (# ~)', legend: '<i class="fas fa-hashtag">' },
+    '33': { name: 'Semicolon & Colon (; :)', legend: ';<b style="font-size: 80%;"> :</b>' },
+    '34': { name: 'Quotation Marks (\' ")', legend: '&apos;<b style="font-size: 80%;"> &quot;</b>' },
+    '35': { name: 'Accent Grave & Tilde (` ~)', legend: '`<b style="font-size: 80%;"> ~</b>' },
+    '36': { name: 'Comma & Less Than (, <)', legend: ',<b style="font-size: 80%;"> &lt;</b>' },
+    '37': { name: 'Dot & Greater Than (. >)', legend: '.<b style="font-size: 80%;"> &gt;</b>' },
+    '38': { name: 'Slash & Question Mark (/ ?)', legend: '/<b style="font-size: 80%;"> ?</b>' },
+    '39': { name: 'CapsLock', legend: 'Caps' },
+    '3A': { name: 'F1', legend: 'F1' },
+    '3B': { name: 'F2', legend: 'F2' },
+    '3C': { name: 'F3', legend: 'F3' },
+    '3D': { name: 'F4', legend: 'F4' },
+    '3E': { name: 'F5', legend: 'F5' },
+    '3F': { name: 'F6', legend: 'F6' },
+    '40': { name: 'F7', legend: 'F7' },
+    '41': { name: 'F8', legend: 'F8' },
+    '42': { name: 'F9', legend: 'F9' },
+    '43': { name: 'F10', legend: 'F10' },
+    '44': { name: 'F11', legend: 'F11' },
+    '45': { name: 'F12', legend: 'F12' },
+    '46': { name: 'PrintScreen', legend: 'Prtsc' },
+    '47': { name: 'ScrollLock', legend: 'Scrlk' },
+    '48': { name: 'Pause', legend: 'Pause' },
+    '49': { name: 'Insert', legend: 'Ins' },
+    '4A': { name: 'Home', legend: 'Home' },
+    '4B': { name: 'Page Up', legend: 'PgUp' },
+    '4C': { name: 'Delete Forward', legend: 'Del' },
+    '4D': { name: 'End', legend: 'End' },
+    '4E': { name: 'Page Down', legend: 'PgDn' },
+    '4F': { name: 'Right Arrow', legend: '<i class="fas fa-arrow-right"></i>' },
+    '50': { name: 'Left Arrow', legend: '<i class="fas fa-arrow-left"></i>' },
+    '51': { name: 'Down Arrow', legend: '<i class="fas fa-arrow-down"></i>' },
+    '52': { name: 'Up Arrow', legend: '<i class="fas fa-arrow-up"></i>' },
+    '53': { name: 'NumLock', legend: '<span style="font-size: 80%;">Numlk</span>' },
+    '54': { name: 'Keypad /', legend: '<span style="font-size: 80%;">KP </span>/' },
+    '55': { name: 'Keypad *', legend: '<span style="font-size: 80%;">KP </span>*' },
+    '56': { name: 'Keypad -', legend: '<span style="font-size: 80%;">KP </span>-' },
+    '57': { name: 'Keypad +', legend: '<span style="font-size: 80%;">KP </span>+' },
+    '58': { name: 'Keypad Return / Enter', legend: 'Ret' },
+    '59': { name: 'Keypad 1 (End)', legend: '<span style="font-size: 80%;">KP </span>1' },
+    '5A': { name: 'Keypad 2 (Down)', legend: '<span style="font-size: 80%;">KP </span>2' },
+    '5B': { name: 'Keypad 3 (PageDn)', legend: '<span style="font-size: 80%;">KP </span>3' },
+    '5C': { name: 'Keypad 4 (Left)', legend: '<span style="font-size: 80%;">KP </span>4' },
+    '5D': { name: 'Keypad 5', legend: '<span style="font-size: 80%;">KP </span>5' },
+    '5E': { name: 'Keypad 6 (Right)', legend: '<span style="font-size: 80%;">KP </span>6' },
+    '5F': { name: 'Keypad 7 (Home)', legend: '<span style="font-size: 80%;">KP </span>7' },
+    '60': { name: 'Keypad 8 (Up)', legend: '<span style="font-size: 80%;">KP </span>8' },
+    '61': { name: 'Keypad 9 (PageUp)', legend: '<span style="font-size: 80%;">KP </span>9' },
+    '62': { name: 'Keypad 0 (Insert)', legend: '<span style="font-size: 80%;">KP </span>0' },
+    '63': { name: 'Keypad Dot (Delete)', legend: '<span style="font-size: 80%;">KP </span>.' },
+    '64': { name: 'Non-US Backslash (\\)', legend: '\\\\' },
+    '65': { name: 'Menu / Application', legend: '<i class="fas fa-bars"></i>' },
+    '66': { name: 'Power', legend: 'x66' },
+    '67': { name: 'Keypad Equal', legend: '<span style="font-size: 80%;">KP </span>=' },
+    '68': { name: 'F13', legend: 'F13' },
+    '69': { name: 'F14', legend: 'F14' },
+    '6A': { name: 'F15', legend: 'F15' },
+    '6B': { name: 'F16', legend: 'F16' },
+    '6C': { name: 'F17', legend: 'F17' },
+    '6D': { name: 'F18', legend: 'F18' },
+    '6E': { name: 'F19', legend: 'F19' },
+    '6F': { name: 'F20', legend: 'F20' },
+    '70': { name: 'F21', legend: 'F21' },
+    '71': { name: 'F22', legend: 'F22' },
+    '72': { name: 'F23', legend: 'F23' },
+    '73': { name: 'F24', legend: 'F24' },
+    '74': { name: 'Execute', legend: 'x74' },
+    '75': { name: 'Help', legend: 'x75' },
+    '76': { name: 'Menu', legend: 'x76' },
+    '77': { name: 'Select', legend: 'x77' },
+    '78': { name: 'Stop', legend: 'x78' },
+    '79': { name: 'Again', legend: 'x79' },
+    '7A': { name: 'Undo', legend: 'x7A' },
+    '7B': { name: 'Cut', legend: 'x7B' },
+    '7C': { name: 'Copy', legend: 'x7C' },
+    '7D': { name: 'Paste', legend: 'x7D' },
+    '7E': { name: 'Find', legend: 'x7E' },
+    '7F': { name: 'Mute', legend: 'x7F' },
+    '80': { name: 'Volume Up', legend: 'x80' },
+    '81': { name: 'Volume Down', legend: 'x81' },
+    '82': { name: 'Locking CapsLock', legend: 'x82' },
+    '83': { name: 'Locking NumLock', legend: 'x83' },
+    '84': { name: 'Locking ScrollLock', legend: 'x84' },
+    '85': { name: 'Comma', legend: 'x85' },
+    '86': { name: 'Equal Sign', legend: 'x86' },
+    '87': { name: 'International 1', legend: '<i class="fas fa-globe"></i>' },
+    '88': { name: 'International 2', legend: '<i class="fas fa-globe"></i>' },
+    '89': { name: 'International 3', legend: '<i class="fas fa-globe"></i>' },
+    '8A': { name: 'International 4', legend: '<i class="fas fa-globe"></i>' },
+    '8B': { name: 'International 5', legend: '<i class="fas fa-globe"></i>' },
+    '8C': { name: 'International 6', legend: '<i class="fas fa-globe"></i>' },
+    '8D': { name: 'International 7', legend: '<i class="fas fa-globe"></i>' },
+    '8E': { name: 'International 8', legend: '<i class="fas fa-globe"></i>' },
+    '8F': { name: 'International 9', legend: '<i class="fas fa-globe"></i>' },
+    '90': { name: 'Language 1', legend: '<i class="fas fa-language"></i>' },
+    '91': { name: 'Language 2', legend: '<i class="fas fa-language"></i>' },
+    '92': { name: 'Language 3', legend: '<i class="fas fa-language"></i>' },
+    '93': { name: 'Language 4', legend: '<i class="fas fa-language"></i>' },
+    '94': { name: 'Language 5', legend: '<i class="fas fa-language"></i>' },
+    '95': { name: 'Language 6', legend: '<i class="fas fa-language"></i>' },
+    '96': { name: 'Language 7', legend: '<i class="fas fa-language"></i>' },
+    '97': { name: 'Language 8', legend: '<i class="fas fa-language"></i>' },
+    '98': { name: 'Language 9', legend: '<i class="fas fa-language"></i>' },
+
+    '99': { name: 'AltErase', legend: 'x99' },
+    '9A': { name: 'SysReq', legend: 'x9A' },
+    '9B': { name: 'Cancel', legend: 'x9B' },
+    '9C': { name: 'Clear', legend: 'x9C' },
+    '9D': { name: 'Prior', legend: 'x9D' },
+    '9E': { name: 'Return', legend: 'x9E' },
+    '9F': { name: 'Separator', legend: 'x9F' },
+    'A0': { name: 'Out', legend: 'xA0' },
+    'A1': { name: 'Oper', legend: 'xA1' },
+    'A2': { name: 'Clear / Again', legend: 'xA2' },
+    'A3': { name: 'CrSel / Props', legend: 'xA3' },
+    'A4': { name: 'ExSel', legend: 'xA4' },
+
+    // Vortex Specific
+    'B0': { name: 'Mouse Key 1', legend: 'M1' },
+    'B1': { name: 'Mouse Key 2', legend: 'M2' },
+    'B2': { name: 'Mouse Key 3', legend: 'M3' },
+    'B3': { name: 'Mouse Key 4', legend: 'M4' },
+    'B4': { name: 'Mouse Key 5', legend: 'M5' },
+    'B5': { name: 'Mouse Key 6', legend: 'M6' },
+    'B6': { name: 'Mouse Key 7', legend: 'M7' },
+    'B7': { name: 'Mouse Key 8', legend: 'M8' },
+    'B8': { name: 'Mouse Key 9', legend: 'M9' },
+    'B9': { name: 'Mouse Key 10', legend: 'M10' },
+    'BA': { name: 'Mouse Key 11', legend: 'M11' },
+    'BB': { name: 'Mouse Key 12', legend: 'M12' },
+    'BC': { name: 'Mouse Key 13', legend: 'M13' },
+    'BD': { name: 'Mouse Key 14', legend: 'M14' },
+    'BE': { name: 'Mouse Key 15', legend: 'M15' },
+    'BF': { name: 'Mouse Key 16', legend: 'M16' },
+    'C0': { name: 'Vortex G1', legend: 'G1' },
+    'C1': { name: 'Vortex G2', legend: 'G2' },
+    'C2': { name: 'Vortex G3', legend: 'G3' },
+    'C3': { name: 'Vortex G4', legend: 'G4' },
+    'C4': { name: 'Vortex G5', legend: 'G5' },
+    'C5': { name: 'Vortex G6', legend: 'G6' },
+    'C6': { name: 'Vortex G7', legend: 'G7' },
+    'C7': { name: 'Vortex G8', legend: 'G8' },
+    'C8': { name: 'Vortex G9 (L_Space)', legend: 'LSpace' },
+    'C9': { name: 'Vortex G10 (Fn1)', legend: 'Fn1' },
+    'CA': { name: 'Vortex G11', legend: 'G11' },
+    'CB': { name: 'Vortex G12', legend: 'G12' },
+    'CC': { name: 'Vortex G13', legend: 'G13' },
+    'CD': { name: 'Vortex G14 (Fn)', legend: 'G14' },
+    'CE': { name: 'Vortex G15', legend: 'G15' },
+    'CF': { name: 'Vortex G16 (Pn)', legend: 'Pn' },
+    'D0': { name: 'Vortex G17', legend: 'G17' },
+    'D1': { name: 'Vortex G18', legend: 'G18' },
+    'D2': { name: 'Vortex G19', legend: 'G19' },
+    'D3': { name: 'Vortex G20', legend: 'G20' },
+    'D4': { name: 'Vortex G21', legend: 'G21' },
+    'D5': { name: 'Vortex G22', legend: 'G22' },
+    'D6': { name: 'Vortex G23', legend: 'G23' },
+    'D7': { name: 'Vortex G24', legend: 'G24' },
+
+    // Modifiers & System
+    'E0': { name: 'Left Control', legend: 'Ctrl' },
+    'E1': { name: 'Left Shift', legend: 'Shift' },
+    'E2': { name: 'Left Alt', legend: 'Alt' },
+    'E3': { name: 'Left System', legend: 'Sys' },
+    'E4': { name: 'Right Control', legend: '<span style="font-size: 80%">R </span>Ctrl' },
+    'E5': { name: 'Right Shift', legend: '<span style="font-size: 80%">R </span><span style="font-size: 90%">Shift</span>' },
+    'E6': { name: 'Right Alt', legend: '<span style="font-size: 80%">R </span>Alt' },
+    'E7': { name: 'Right System', legend: '<span style="font-size: 80%">R </span>Sys' },
+
+    // Vortex Specific
+    'E9': { name: 'ACPI PD', legend: 'xE9' },
+    'EA': { name: 'ACPI Sleep', legend: 'xEA' },
+    'EB': { name: 'ACPI Wake', legend: 'xEB' },
+    'EC': { name: 'Media Sel', legend: 'xEC' },
+    'ED': { name: 'Mail', legend: '<i class="fas fa-envelope"></i>' },
+    'EE': { name: 'Calculator', legend: '<i class="fas fa-calculator"></i>' },
+    'EF': { name: 'My Computer', legend: '<i class="fas fa-desktop"></i>' },
+    'F0': { name: 'Media Play/Pause', legend: '<i class="fas fa-play"></i>' },
+    'F1': { name: 'Media Stop', legend: '<i class="fas fa-stop"></i>' },
+    'F2': { name: 'Media Previous Track', legend: '<i class="fas fa-step-backward"></i>' },
+    'F3': { name: 'Media Next Track', legend: '<i class="fas fa-step-forward"></i>' },
+    'F4': { name: 'Media Volume Mute', legend: '<i class="fas fa-volume-off"></i>' },
+    'F5': { name: 'Media Volume Down', legend: '<i class="fas fa-volume-down"></i>' },
+    'F6': { name: 'Media Volume Up', legend: '<i class="fas fa-volume-up"></i>' },
+    'F7': { name: 'Web Search', legend: '<i class="fas fa-search"></i>' },
+    'F8': { name: 'Web Home', legend: '<i class="fas fa-home"></i>' },
+    'F9': { name: 'Web Back', legend: '<i class="fas fa-arrow-alt-circle-left"></i>' },
+    'FA': { name: 'Web Forward', legend: '<i class="fas fa-arrow-alt-circle-right"></i>' },
+    'FB': { name: 'Web Stop', legend: '<i class="fas fa-ban"></i>' },
+    'FC': { name: 'Web Refresh', legend: '<i class="fas fa-sync-alt"></i>' },
+    'FD': { name: 'Web Favorate', legend: '<i class="fas fa-heart"></i>' },
+
     // Cheating keycode
-    'FN': '<span class="color-fn">Fn</span>',
-    'PN': '<span class="color-pn">Pn</span>',
-    'FN1': '<span class="color-fn1">Fn1</span>',
-    'Light': '<i class="fas fa-lightbulb"></i>',
-    'L0': 'L0',
-    'L1': 'L1',
-    'L2': 'L2',
-    'L3': 'L3',
-    'Macro': '<i class="fas fa-keyboard"></i>',
+    'FN': { name: 'Fn Layer Modifier', legend: '<span class="color-fn">Fn</span>' },
+    'PN': { name: 'Pn Layer Modifier', legend: '<span class="color-pn">Pn</span>' },
+    'FN1': { name: 'Fn1 Layer Modifier', legend: '<span class="color-fn1">Fn1</span>' },
+    'Light': { name: 'RGB Control', legend: '<i class="fas fa-lightbulb"></i>' },
+    'L0': { name: 'Profile Switch L0', legend: 'L0' },
+    'L1': { name: 'Profile Switch L1', legend: 'L1' },
+    'L2': { name: 'Profile Switch L2', legend: 'L2' },
+    'L3': { name: 'Profile Switch L3', legend: 'L3' },
+    'Macro': { name: 'MACRO', legend: '<i class="fas fa-keyboard"></i>' },
 };
 
 const fullKeyboard = [
@@ -688,12 +509,7 @@ const fullKeyboard = [
 ]
 
 const visibleKeyCode = fullKeyboard.reduce((p, r)=>p.concat(r.map(v=>v.code)),[]);
-const hiddenKeyCode = Object.keys(keyName).filter(v=>unavaliabe_keys.indexOf(v) < 0 && visibleKeyCode.indexOf(v) < 0).sort((a,b)=>(a.length - b.length || a.localeCompare(b)));
-
-// Patch keyLegend so I don't need to change it
-for (const key of hiddenKeyCode) {
-    keyLegend[key] = '<i class="fas fa-flask"></i>';
-}
+const hiddenKeyCode = Object.keys(keyDef).filter(v=>unavaliabe_keys.indexOf(v) < 0 && visibleKeyCode.indexOf(v) < 0).sort((a,b)=>(a.length - b.length || a.localeCompare(b)));
 
 // -----------------------
 //  Templates
@@ -862,7 +678,7 @@ var app = new Vue({
         active_profile: 0,
         active_tab: 0,
         selected_key: null,
-        binding_key: null,
+        binding_key: '0',
         binding_macro: -1,
         selected_key_layer: 0,
         editing_macro: null,
@@ -871,16 +687,16 @@ var app = new Vue({
         new_macro: false,
         macro_next_id: 0,
         default_timer: 10,
+        locale: 'us',
 
         // consts
         locked_keys: locked_keys,
         unbindable_keys: unbindable_keys,
         unbindable_desc: unbindable_desc,
         special_keys: special_keys,
-        ktmName: ktmName,
-        keyName: keyName,
-        keyLegend: keyLegend,
+        keyDef: {...keyDef},
         fullKeyboard: fullKeyboard,
+        keyLocales: keyLocales,
 
         // other
         UIkit: UIkit,
@@ -895,19 +711,29 @@ var app = new Vue({
             'led-blue': this.active_profile == 3,
           }
         },
-        currentKeyHasLayers: function () {
-            return this.currentKeyProfile.bind != 'FN' && this.currentKeyProfile.bind != 'FN1' && this.currentKeyProfile.bind != 'PN';
-        },
         currentKeyLayerPrefix: function() {
             switch (this.selected_key_layer) {
                 case 0:
                 return "";
                 case 1:
-                return "Pn + ";
+                return "Pn";
                 case 2:
-                return "Fn + ";
+                return "Fn";
                 case 3:
-                return "Fn1 + ";
+                return "Fn1";
+            }
+            return "";
+        },
+        currentKeyLayerColor: function() {
+            switch (this.selected_key_layer) {
+                case 0:
+                return "";
+                case 1:
+                return "color-pn";
+                case 2:
+                return "color-fn";
+                case 3:
+                return "color-fn1";
             }
             return "";
         },
@@ -1213,6 +1039,7 @@ var app = new Vue({
             UIkit.modal('#macro-modal', {bgClose: null}).show();
         },
         saveMacro: function () {
+            if (this.editing_macro.title.length == 0 || this.editing_macro.events.length ==0) return;
             if (this.new_macro) {
                 this.macros.push(this.editing_macro);
                 this.macro_next_id += 1;
@@ -1224,9 +1051,24 @@ var app = new Vue({
                 this.macros[this.editing_macro_index].events = this.editing_macro.events;
             }
             if (this.editing_macro_from_keybind) {
-                UIkit.modal('#key-selector-modal', {bgClose: null}).show();
-            } else {
-                UIkit.modal('#macro-modal').hide();
+                this.binding_key = 'Macro';
+                this.binding_macro = this.editing_macro.id;
+                this.confirmBind();
+            }
+            UIkit.modal('#macro-modal').hide();
+        },
+        setAllTimer: function(interval) {
+            for (const event of this.editing_macro.events) {
+                event.timer = interval;
+            }
+        },
+        changeLocale: function (locale) {
+            if (!this.keyLocales[locale]) {
+                locale = 'us';
+            }
+            this.keyDef = {...keyDef};
+            for (const key in this.keyLocales[locale].keys) {
+                this.keyDef[key] = this.keyLocales[locale].keys[key];
             }
         },
         removeMacro: function() {
@@ -1533,86 +1375,104 @@ var app = new Vue({
                 buffer[offset+6] = arr[6], buffer[offset+7] = arr[7];
             };
 
-            const encode8Bytes = (arr) => {
-                const first = (arr[0] << 8) + arr[1];
-                const secon = (arr[2] << 8) + arr[3];
-                const third = (arr[4] << 8) + arr[5];
-                const fourt = (arr[6] << 8) + arr[7];
-                return ("0000" + first.toString(16)).substr(-4) + 
-                       ("0000" + secon.toString(16)).substr(-4) +
-                       ("0000" + third.toString(16)).substr(-4) + 
-                       ("0000" + fourt.toString(16)).substr(-4);
+            const setDescriptor = (offset, profile, dataPosition) => {
+                set1Byte(offset, 0); // type
+                set1Byte(offset+1, profile); // profileIndex
+                set2Bytes(offset+2, 0); // macroIndex
+                set4Bytes(offset+4, dataPosition); // dataPosition
             };
 
+            const setMacroDescriptor = (offset, profile, macro, dataPosition) => {
+                set1Byte(offset, 1); // type
+                set1Byte(offset+1, profile); // profileIndex
+                set2Bytes(offset+2, macro); // macroIndex
+                set4Bytes(offset+4, dataPosition); // dataPosition
+            }
+
             const profileCount = 4;
-            const macroIndex = new Array(profileCount).fill(0);
             const itemSize = mpc.macro.length * 2 + mpc.keyChange.length + mpc.functionSet.length;
 
             set4Bytes(0, 1229347139); // CYFI
             set2Bytes(4, 0); // revision
             set2Bytes(6, itemSize);
 
-            const macroData = [];
-            let descriptorOffset = 8 + itemSize * 8;
-            let dataOffset = 8;
+            let descriptorOffset = 8;
+            let dataOffset = descriptorOffset + itemSize * 8;
             
             const processProfile = (profile) => {
+                const macroIndex = 0;
                 const functionSet = mpc.functionSet.filter((v) => v.profileIndex == profile);        
                 for (const data of functionSet) {
+                    // data
                     const layerCode = { FN: 0x94, FN1: 0x95, PN: 0x96 }[data.key];
-                    const descriptor = [0x02, layerCode, data.ktm.length, 0, 0, 0, 0, 0];
+                    const dataItem = [0x02, layerCode, data.ktm.length, 0, 0, 0, 0, 0];
                     let index = 4;
                     for (const ktm of data.ktm) {
-                        descriptor[index] = ktm;
+                        dataItem[index] = ktm;
                         index += 1;
                     }
+                    set8Bytes(dataOffset, dataItem);
                     
-                    const key = encode8Bytes(descriptor);
+                    // descriptor
+                    setDescriptor(descriptorOffset, data.profileIndex, dataOffset);
 
-                    set8Bytes(descriptorOffset, descriptor);
-                    
-                    set1Byte(dataOffset, 0);
-                    set1Byte(dataOffset+1, data.profileIndex);
-                    set2Bytes(dataOffset+2, 0);
-                    set4Bytes(dataOffset+4, descriptorOffset);
                     dataOffset += 8;
                     descriptorOffset += 8;
                 }
 
                 const keyChanges = mpc.keyChange.filter((v) => v.profileIndex == profile); 
                 for (const data of keyChanges) {
-                    const sourceLayer = { FN: 1, FN1: 2, PN: 3, INIT: 0 }[data.sourceLayer];
-                    const targetLayer = { FN: 1, FN1: 2, PN: 3, INIT: 0 }[data.targetLayer];
-                    
-                    const descriptor = [0x02, 0x20,
+                    // data
+                    const LAYER_ID = { FN: 1, FN1: 2, PN: 3, INIT: 0 };
+                    const sourceLayer = LAYER_ID[data.sourceLayer];
+                    const targetLayer = LAYER_ID[data.targetLayer];
+                    const dataItem = [0x02, 0x20,
                         parseInt(data.sourceKey, 16), sourceLayer,
                         parseInt(data.targetKey, 16), targetLayer,
                         0, 0];
-   
-                    const key = encode8Bytes(descriptor);
                     
-                    set8Bytes(descriptorOffset, descriptor);
-            
-                    set1Byte(dataOffset, 0);
-                    set1Byte(dataOffset+1, data.profileIndex);
-                    set2Bytes(dataOffset+2, 0);
-                    set4Bytes(dataOffset+4, descriptorOffset);
+                    set8Bytes(dataOffset, dataItem);
+                    
+                    // descriptor
+                    setDescriptor(descriptorOffset, data.profileIndex, dataOffset);
 
-                    descriptorOffset += 8;
                     dataOffset += 8;
+                    descriptorOffset += 8;
                 }
 
                 const macros = mpc.macro.filter((v) => v.profileIndex == profile);
-                
+                macroPos = profilePos + filterMacro.length * 8 + 4;
                 for (const data of macros) {
+                    // data
                     const macroType = (data.macroType << 5) + 0x1C + { FN: 1, FN1: 2, PN: 3, INIT: 0}[data.sourceLayer];
-                    const descriptor = [0x02, 0x20,
-                        parseInt(data.sourceKey, 16), sourceLayer,
-                        parseInt(data.targetKey, 16), targetLayer,
-                        0, 0];
-                }
+                    const repeat = parseInt(data.macroRepeat);
+                    const dataItem = [0x02, 0x18,
+                        (macroIndex & 0xFF), (macroIndex & 0xFF00) >> 8,
+                        parseInt(data.sourceKey, 16), macroType,
+                        (repeat & 0xFF), (repeat & 0xFF00) >> 8];
+                    set8Bytes(dataOffset, dataItem);
+                    
+                    // descriptor
+                    setDescriptor(descriptorOffset, data.profileIndex, dataOffset);
 
-                descriptorOffset += 1;
+                    // macro
+                    for (const event of data.macro) {
+                        const eventType = ((2 - event.event) << 5) + 0x1C + { FN: 1, FN1: 2, PN: 3, INIT: 0}[data.sourceLayer];
+                        let timer = event.timer;
+                        if (timer < 1) timer = 1;
+                        if (timer > 16777216) timer = 16777216;
+
+                        if (timer < 16383) {
+
+                        }
+                    }
+
+                    macroPos += macro.
+                   
+                    dataOffset += 8;
+                }
+                
+                profilePos = macroPos + 8;
             }
 
             for (let profile = 0; profile < profileCount; profile++) {
@@ -1781,13 +1641,17 @@ var app = new Vue({
                         else {
                             macroData += '00';
                         }
+
                         var timer = parseInt(item.timer);
+                        if (timer < 1) timer = 1;
+                        if (timer > 16777216) timer = 16777216;
+
                         var macroTimer = [];
                         if (timer < 16383) {
-                            macroTimer = _this.numberTo2Bytes(timer / 0.5 - 1);
+                            macroTimer = _this.numberTo2Bytes(timer * 2 - 1);
                         }
                         else {
-                            macroTimer = _this.numberTo2Bytes(Math.floor(timer / 512) - 1 + 32768);
+                            macroTimer = _this.numberTo2Bytes(Math.floor(timer / 512) + 32767);
                         }
                         macro.macro = macro.macro.concat([parseInt(item.key, 16), parseInt(macroData, 2)]).concat(macroTimer);
                     });

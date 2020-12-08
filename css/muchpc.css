@@ -105,7 +105,7 @@
 .key-legend-pn {
     position: absolute;
     top: 9.5mm;
-    left: 3.5mm;
+    right: 3.5mm;
     font-size: 9pt;
 }
 
@@ -177,6 +177,17 @@
     text-align: center;
     font-size: 10pt;
 }
+
+.fullKeyboard .fk-title {
+    height: 60px;
+    text-align: left;
+    margin-left: 60px;
+}
+
+.fullKeyboard .fk-title .uk-alert-primary {
+    margin: 0;
+}
+
 
 .key.small {
     padding-bottom:1mm;
@@ -346,9 +357,12 @@
 }
 
 .macro-title {
-    max-height: 3em;
+    height: 2em;
+    max-height: 2em;
     overflow: hidden;
+    line-height: 80%;
     margin-bottom: 5px;
+    
 }
 
 .macro-event {

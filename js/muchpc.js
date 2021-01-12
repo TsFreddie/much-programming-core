@@ -81,7 +81,7 @@ const keyDef = {
     18: { name: 'U', legend: 'U' },
     19: { name: 'V', legend: 'V' },
     '1A': { name: 'W', legend: 'W' },
-    '1B': { name: 'X', legend: '<span style="font-size: 80%;">X</span>' },
+    '1B': { name: 'X', legend: 'X' },
     '1C': { name: 'Y', legend: 'Y' },
     '1D': { name: 'Z', legend: 'Z' },
     '1E': { name: 'Top Row 1', legend: '1<b style="font-size: 80%;"> !</b>' },

@@ -27,7 +27,7 @@
             <nav class="uk-navbar-container uk-box-shadow-medium" uk-navbar>
                 <div class="uk-navbar-left">
                     <a class="uk-navbar-item uk-logo">TsFreddie's MPC</a>
-                    <span>Locale <i class="fas fa-question-circle" uk-tooltip="Determines how keys are displayed. Won't affect keycode assigned."></i> :</span>
+                    <!-- <span>Locale <i class="fas fa-question-circle" uk-tooltip="Determines how keys are displayed. Won't affect keycode assigned."></i> :</span>
                     <div class="key-form-custom" uk-form-custom style="margin-left: 5px;">
                         <select class="uk-select uk-form-width-medium" v-model="locale" @change="(e) => {changeLocale(e.target.value);}">
                             <option v-for="(locale, key) in keyLocales" v-bind:value="key">{{ locale.name }}</option>
@@ -37,7 +37,7 @@
                             <span>{{ keyLocales[locale].name }}</span>
                             <span uk-icon="icon: chevron-down"></span>
                         </button>
-                    </div>
+                    </div> -->
                 </div>
 
                 <div class="uk-navbar-right">
@@ -57,13 +57,11 @@
                 </div>
             </nav>
 
-            <div class="uk-padding-small">
+            <div class="uk-padding-small uk-text-right">
                 <button class="uk-button-small uk-button-default uk-box-shadow-small" @click="openFile(importFile)">Load JSON</button>
                 <button class="uk-button-small uk-button-default uk-box-shadow-small" @click="exportFile()">Save JSON</button>
-                
-                <span style="margin-left: 38%;">Generate Binary File <i class="fas fa-question-circle" uk-tooltip="If one of them has problems, try the other one."></i> :</span>
-                <button class="uk-button-small uk-button-primary uk-box-shadow-small" @click="generateOld()" uk-tooltip="The binary generation code directly from Vortexgear">Offical</button>
-                <button class="uk-button-small uk-button-primary uk-box-shadow-small" @click="generate()" uk-tooltip="My custom solution, might fix some problems">Custom</button>
+                <button class="uk-button-small uk-button-primary uk-box-shadow-small" @click="generateOld()" uk-tooltip="The binary generation code directly from Vortexgear">Generate Binary (Vortex)</button>
+                <button class="uk-button-small uk-button-primary uk-box-shadow-small" @click="generate()" uk-tooltip="My custom solution, might fix some problems">Generate Binary (Custom)</button>
             </div>
 
             <div id="container" class="uk-padding uk-padding-remove-top">
@@ -85,17 +83,32 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="macro-limit uk-margin">
-                    <span>Macro Limit </span>
-                    <span><i class="fas fa-question-circle" uk-tooltip="MPC firmware has a hard limit of 20 macros per profile."></i></span>
-                    <span>:</span>
-                    <span>{{currentProfileNumMacro}}/20</span>
-                    <progress class="uk-progress" :value="currentProfileNumMacro" max="20" :class="{'progress-danger': currentProfileNumMacro > 20}"></progress>
-
-                    <div v-if="currentProfileNumMacro > 20" class="uk-alert-danger" uk-alert>
-                        You can safely apply the layout, but not all of your macros are guaranteed to work.
+                
+                <div class="uk-column-1-2 uk-margin">
+                    <div class="macro-limit">
+                        <span>Macro Limit </span>
+                        <span><i class="fas fa-question-circle" uk-tooltip="MPC firmware has a hard limit of 20 macros per profile."></i></span>
+                        <span>:</span>
+                        <span>{{currentProfileNumMacro}}/20</span>
+                        <progress class="uk-progress" :value="currentProfileNumMacro" max="20" :class="{'progress-danger': currentProfileNumMacro > 20}"></progress>
                     </div>
+
+                    <div class="memory-limit">
+                        <span>Memory Usage </span>
+                        <span><i class="fas fa-question-circle" uk-tooltip="Preferred binary size is 8KB"></i></span>
+                        <span>:</span>
+                        <span>{{memoryUsage}}/8192 Bytes</span>
+                        <progress class="uk-progress" :value="memoryUsage" max="8192" :class="{'progress-danger': memoryUsage > 8192}"></progress>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div v-if="currentProfileNumMacro > 20" class="uk-alert-danger" uk-alert>
+                    <b>Macro limit excceded!</b> You can safely apply the layout, but not all of your macros are guaranteed to work.
+                </div>
+                <div v-if="memoryUsage > 8192" class="uk-alert-danger" uk-alert>
+                    <b>Memory usage excceded!</b> Some of your macros might not work. Usually the macros in L3 will stop working. Based on my testing, out of range key settings seem to work just fine.
                 </div>
 
                 <ul id="tabs" uk-tab>
@@ -122,7 +135,7 @@
                                     <li><b>Added a custom binary generation procedure (The "Custom" Button). </b>
                                         <ul>
                                             <li>
-                                                Please let me know which one works or doesn't works for you on <a target="_blank" href="https://github.com/TsFreddie/much-programming-core/issues">Github</a>
+                                                Please let me know which one works or doesn't work for you on <a target="_blank" href="https://github.com/TsFreddie/much-programming-core/issues">Github</a>
                                             </li>
                                         </ul>
                                     </li>
@@ -138,7 +151,7 @@
                                             <li>Updated keys with more descriptive labels</li>
                                             <li>Allows more keys to be changed: Fn can now be swapped with other modifiers</li>
                                             <li>Fixed the size of macro buttons in Firefox</li>
-                                            <li>Added some locale options</li>
+                                            <li>Added a memory usage indicator</li>
                                         </ul>
                                     </li>
                                 </ul>
@@ -604,7 +617,7 @@
                         <button class="uk-button uk-button-default" :class="[{'uk-button-danger': new_macro}]" @click="cancelMacro()">Cancel</button>
                         <span class="uk-margin uk-text-meta">You can drag each key event to change its order.</span>
                         <div class="uk-align-right">
-                            <div v-for="i in [10, 15, 100, 250, 500]" class="key-border key small fk-1x1"  @click="setAllTimer(i)" :uk-tooltip="'Set all interval to '+i+'ms'">
+                            <div v-for="i in [1, 10, 15, 100, 250, 500]" class="key-border key small fk-1x1"  @click="setAllTimer(i)" :uk-tooltip="'Set all interval to '+i+'ms'">
                                 <div class="key-container">
                                     <div class="key-legend-main">
                                         <span style="font-size: 11px;">{{i}}ms</span>

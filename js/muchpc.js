@@ -814,25 +814,28 @@ var app = new Vue({
                 },
                 'Clone to L0': function () {
                     _run_through_rows(function (k, p) {
-                        console.log(0);
-                        console.log(k.profiles[0].fn);
                         k.profiles[0].bind = k.profiles[p].bind;
                         k.profiles[0].pn = k.profiles[p].pn;
                         k.profiles[0].fn = k.profiles[p].fn;
                         k.profiles[0].fn1 = k.profiles[p].fn1;
-                        console.log(p);
-                        console.log(k.profiles[p].fn);
+                        k.profiles[0].bind_macro = k.profiles[p].bind_macro;
+                        k.profiles[0].fn_macro = k.profiles[p].fn_macro;
+                        k.profiles[0].fn1_macro = k.profiles[p].fn1_macro;
+                        k.profiles[0].pn_macro = k.profiles[p].pn_macro;
                     });
                     UIkit.notification('<i class="fas fa-check"></i> Copyed profile L' + _this.active_profile + ' to L0.', { pos: 'bottom-right', status: 'success' }).$el.classList.add('uk-box-shadow-large');
                     _this.active_profile = 0;
                 },
                 'Clone to L1': function () {
                     _run_through_rows(function (k, p) {
-                        console.log(k);
                         k.profiles[1].bind = k.profiles[p].bind;
                         k.profiles[1].pn = k.profiles[p].pn;
                         k.profiles[1].fn = k.profiles[p].fn;
                         k.profiles[1].fn1 = k.profiles[p].fn1;
+                        k.profiles[1].bind_macro = k.profiles[p].bind_macro;
+                        k.profiles[1].fn_macro = k.profiles[p].fn_macro;
+                        k.profiles[1].fn1_macro = k.profiles[p].fn1_macro;
+                        k.profiles[1].pn_macro = k.profiles[p].pn_macro;
                     });
                     UIkit.notification('<i class="fas fa-check"></i> Copyed profile L' + _this.active_profile + ' to L1.', { pos: 'bottom-right', status: 'success' }).$el.classList.add('uk-box-shadow-large');
                     _this.active_profile = 1;
@@ -843,6 +846,10 @@ var app = new Vue({
                         k.profiles[2].pn = k.profiles[p].pn;
                         k.profiles[2].fn = k.profiles[p].fn;
                         k.profiles[2].fn1 = k.profiles[p].fn1;
+                        k.profiles[2].bind_macro = k.profiles[p].bind_macro;
+                        k.profiles[2].fn_macro = k.profiles[p].fn_macro;
+                        k.profiles[2].fn1_macro = k.profiles[p].fn1_macro;
+                        k.profiles[2].pn_macro = k.profiles[p].pn_macro;
                     });
                     UIkit.notification('<i class="fas fa-check"></i> Copyed profile L' + _this.active_profile + ' to L2.', { pos: 'bottom-right', status: 'success' }).$el.classList.add('uk-box-shadow-large');
                     _this.active_profile = 2;
@@ -853,6 +860,10 @@ var app = new Vue({
                         k.profiles[3].pn = k.profiles[p].pn;
                         k.profiles[3].fn = k.profiles[p].fn;
                         k.profiles[3].fn1 = k.profiles[p].fn1;
+                        k.profiles[3].bind_macro = k.profiles[p].bind_macro;
+                        k.profiles[3].fn_macro = k.profiles[p].fn_macro;
+                        k.profiles[3].fn1_macro = k.profiles[p].fn1_macro;
+                        k.profiles[3].pn_macro = k.profiles[p].pn_macro;
                     });
                     UIkit.notification('<i class="fas fa-check"></i> Copyed profile L' + _this.active_profile + ' to L3.', { pos: 'bottom-right', status: 'success' }).$el.classList.add('uk-box-shadow-large');
                     _this.active_profile = 3;
